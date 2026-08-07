@@ -84,8 +84,14 @@
     font-family: inherit;
   }
   input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  input[type="file"] { padding: 8px; font-size: 13px; }
   textarea { resize: vertical; }
+  .file-btn {
+    display: block; width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 14px; font-weight: 600; text-align: center;
+    cursor: pointer; box-sizing: border-box;
+  }
+  .file-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .file-name { display: block; font-size: 12px; color: var(--text-dim); margin-top: 4px; }
   .char-count { font-size: 11px; color: var(--text-dim); text-align: right; margin-top: -4px; }
   button {
     padding: 10px 16px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600;
@@ -179,7 +185,11 @@
     </div>
     <input id="carInput" placeholder="Mașină (ex. VW Golf GTI)">
     <input id="plateInput" placeholder="Număr de înmatriculare" style="text-transform: uppercase;">
-    <input id="photoInput" type="file" accept="image/*">
+    <div>
+      <label class="file-btn" for="photoInput">📷 Adaugă poza mașinii</label>
+      <input id="photoInput" type="file" accept="image/*" hidden>
+      <span class="file-name" id="photoFileName"></span>
+    </div>
     <label class="checkbox-row">
       <input type="checkbox" id="roomCheck">
       Vrei cameră de hotel duminică seara?
@@ -191,7 +201,7 @@
     <textarea id="notesInput" rows="2" maxlength="160" placeholder="Notițe (opțional) — ex. aduc portbagaj, plec la ora 6"></textarea>
     <div class="char-count" id="notesCount">0/160</div>
     <div class="row" style="display:flex; gap:8px;">
-      <button type="submit" id="submitBtn" style="flex:1;">Adaugă în echipaj</button>
+      <button type="submit" id="submitBtn" style="flex:1;">Adaugă mașina</button>
       <button type="button" id="cancelEditBtn">Anulează</button>
     </div>
   </form>
@@ -215,6 +225,7 @@
   const rsvpInput = document.getElementById('rsvpInput');
   const notesInput = document.getElementById('notesInput');
   const photoInput = document.getElementById('photoInput');
+  const photoFileName = document.getElementById('photoFileName');
   const roomCheck = document.getElementById('roomCheck');
   const roomCountRow = document.getElementById('roomCountRow');
   const roomCountInput = document.getElementById('roomCountInput');
@@ -226,6 +237,11 @@
 
   roomCheck.addEventListener('change', () => {
     roomCountRow.classList.toggle('show', roomCheck.checked);
+  });
+
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    photoFileName.textContent = file ? file.name : '';
   });
 
   plateInput.addEventListener('input', () => {
@@ -440,6 +456,7 @@
     notesInput.value = person.notes || '';
     notesCount.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
     photoInput.value = '';
+    photoFileName.textContent = '';
     roomCheck.checked = !!person.room_people;
     roomCountRow.classList.toggle('show', roomCheck.checked);
     roomCountInput.value = person.room_people || 2;
@@ -462,10 +479,11 @@
     notesInput.value = '';
     notesCount.textContent = `0/${NOTES_MAX}`;
     photoInput.value = '';
+    photoFileName.textContent = '';
     roomCheck.checked = false;
     roomCountRow.classList.remove('show');
     roomCountInput.value = 2;
-    submitBtn.textContent = 'Adaugă în echipaj';
+    submitBtn.textContent = 'Adaugă mașina';
     cancelEditBtn.style.display = 'none';
   }
 
