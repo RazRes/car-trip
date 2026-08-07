@@ -12,6 +12,10 @@
     --text: #eceef1;
     --text-dim: #9aa1ac;
     --accent: #ef6b6b;
+    --green: #4ade9a;
+    --green-bg: #17301f;
+    --amber: #e5b567;
+    --amber-bg: #332510;
   }
   * { box-sizing: border-box; }
   body {
@@ -74,13 +78,15 @@
   .checkbox-row input[type="checkbox"] { width: auto; flex-shrink: 0; }
   #roomCountRow { display: none; }
   #roomCountRow.show { display: block; }
-  .room-count-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
-  input {
+  .field-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+  input, select, textarea {
     padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
     background: var(--bg); color: var(--text); font-size: 14px; width: 100%;
+    font-family: inherit;
   }
-  input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   input[type="file"] { padding: 8px; font-size: 13px; }
+  textarea { resize: vertical; }
   button {
     padding: 10px 16px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600;
     cursor: pointer; background: var(--accent); color: white;
@@ -110,6 +116,15 @@
     background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
     padding: 1px 6px; margin-left: 6px; color: var(--accent);
   }
+  .info .notes { color: var(--text-dim); font-size: 12px; margin-top: 4px; font-style: italic; }
+  .status-badge {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.03em; margin-right: 6px; vertical-align: middle;
+  }
+  .status-badge.confirmed { background: var(--green-bg); color: var(--green); }
+  .status-badge.maybe { background: var(--amber-bg); color: var(--amber); }
+  .status-badge.cant_come { background: var(--bg); color: var(--text-dim); }
+  .item.cant-come { opacity: 0.55; }
   .item button {
     background: transparent; color: var(--text-dim); border: 1px solid var(--border);
     padding: 6px 10px; font-size: 12px; font-weight: 600; flex-shrink: 0;
@@ -154,17 +169,27 @@
 
   <form id="addForm">
     <input id="nameInput" placeholder="Name">
+    <div>
+      <label class="field-label">RSVP</label>
+      <select id="rsvpInput">
+        <option value="confirmed">✅ Confirmed</option>
+        <option value="maybe">❔ Maybe</option>
+        <option value="cant_come">❌ Can't come</option>
+      </select>
+    </div>
     <input id="carInput" placeholder="Car (e.g. VW Golf GTI)">
     <input id="plateInput" placeholder="Number plate">
+    <input id="ridingWithInput" placeholder="Riding with someone else instead? (optional)">
     <input id="photoInput" type="file" accept="image/*">
     <label class="checkbox-row">
       <input type="checkbox" id="roomCheck">
       Want a hotel room Sunday night?
     </label>
     <div id="roomCountRow">
-      <label class="room-count-label">Total people sharing that one room (including you)</label>
+      <label class="field-label">Total people sharing that one room (including you)</label>
       <input id="roomCountInput" type="number" min="1" value="2">
     </div>
+    <textarea id="notesInput" rows="2" placeholder="Notes (optional) — e.g. bringing a jack, leaving at 6am"></textarea>
     <div class="row" style="display:flex; gap:8px;">
       <button type="submit" id="submitBtn" style="flex:1;">Add to crew</button>
       <button type="button" id="cancelEditBtn">Cancel</button>
@@ -187,6 +212,9 @@
   const nameInput = document.getElementById('nameInput');
   const carInput = document.getElementById('carInput');
   const plateInput = document.getElementById('plateInput');
+  const ridingWithInput = document.getElementById('ridingWithInput');
+  const rsvpInput = document.getElementById('rsvpInput');
+  const notesInput = document.getElementById('notesInput');
   const photoInput = document.getElementById('photoInput');
   const roomCheck = document.getElementById('roomCheck');
   const roomCountRow = document.getElementById('roomCountRow');
@@ -265,22 +293,29 @@
     render();
   }
 
+  const STATUS_LABELS = { confirmed: '✅ Confirmed', maybe: '❔ Maybe', cant_come: "❌ Can't come" };
+
   function render() {
-    document.getElementById('summaryPeople').textContent = crew.length;
-    document.getElementById('summaryRooms').textContent = crew.filter(p => p.room_people).length;
+    const drivers = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && !p.riding_with);
+    const rooms = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && p.room_people);
+    document.getElementById('summaryPeople').textContent = drivers.length;
+    document.getElementById('summaryRooms').textContent = rooms.length;
 
     if (crew.length === 0) {
       listEl.innerHTML = '<div class="empty">No one added yet.</div>';
       return;
     }
-    listEl.innerHTML = crew.map(person => `
-      <div class="item">
+    listEl.innerHTML = crew.map(person => {
+      const status = person.rsvp_status || 'confirmed';
+      return `
+      <div class="item ${status === 'cant_come' ? 'cant-come' : ''}">
         ${person.photo
           ? `<img class="avatar" src="${person.photo}" alt="">`
           : `<div class="avatar">🙂</div>`}
         <div class="info">
-          <div class="name">${escapeHtml(person.name)}</div>
-          <div class="meta">${escapeHtml(person.car) || 'No car set'}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Room for ${person.room_people}</span>` : ''}</div>
+          <div class="name"><span class="status-badge ${status}">${STATUS_LABELS[status]}</span>${escapeHtml(person.name)}</div>
+          <div class="meta">${person.riding_with ? `🚗 Riding with ${escapeHtml(person.riding_with)}` : (escapeHtml(person.car) || 'No car set')}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Room for ${person.room_people}</span>` : ''}</div>
+          ${person.notes ? `<div class="notes">${escapeHtml(person.notes)}</div>` : ''}
         </div>
         <div class="actions">
           ${canManage(person) ? `
@@ -289,7 +324,8 @@
           ` : ''}
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
     listEl.querySelectorAll('button[data-remove]').forEach(btn => {
       btn.addEventListener('click', () => removePerson(btn.dataset.remove));
     });
@@ -318,6 +354,9 @@
       name,
       car: carInput.value.trim(),
       plate: plateInput.value.trim(),
+      riding_with: ridingWithInput.value.trim() || null,
+      rsvp_status: rsvpInput.value,
+      notes: notesInput.value.trim() || null,
       room_people: roomCheck.checked ? (Number(roomCountInput.value) || 1) : null
     };
 
@@ -361,6 +400,9 @@
     nameInput.value = person.name;
     carInput.value = person.car || '';
     plateInput.value = person.plate || '';
+    ridingWithInput.value = person.riding_with || '';
+    rsvpInput.value = person.rsvp_status || 'confirmed';
+    notesInput.value = person.notes || '';
     photoInput.value = '';
     roomCheck.checked = !!person.room_people;
     roomCountRow.classList.toggle('show', roomCheck.checked);
@@ -380,6 +422,9 @@
     nameInput.value = '';
     carInput.value = '';
     plateInput.value = '';
+    ridingWithInput.value = '';
+    rsvpInput.value = 'confirmed';
+    notesInput.value = '';
     photoInput.value = '';
     roomCheck.checked = false;
     roomCountRow.classList.remove('show');
