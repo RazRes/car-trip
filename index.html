@@ -87,6 +87,7 @@
   input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   input[type="file"] { padding: 8px; font-size: 13px; }
   textarea { resize: vertical; }
+  .char-count { font-size: 11px; color: var(--text-dim); text-align: right; margin-top: -4px; }
   button {
     padding: 10px 16px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600;
     cursor: pointer; background: var(--accent); color: white;
@@ -178,7 +179,7 @@
       </select>
     </div>
     <input id="carInput" placeholder="Car (e.g. VW Golf GTI)">
-    <input id="plateInput" placeholder="Number plate">
+    <input id="plateInput" placeholder="Number plate" style="text-transform: uppercase;">
     <input id="ridingWithInput" placeholder="Riding with someone else instead? (optional)">
     <input id="photoInput" type="file" accept="image/*">
     <label class="checkbox-row">
@@ -189,7 +190,8 @@
       <label class="field-label">Total people sharing that one room (including you)</label>
       <input id="roomCountInput" type="number" min="1" value="2">
     </div>
-    <textarea id="notesInput" rows="2" placeholder="Notes (optional) — e.g. bringing a jack, leaving at 6am"></textarea>
+    <textarea id="notesInput" rows="2" maxlength="160" placeholder="Notes (optional) — e.g. bringing a jack, leaving at 6am"></textarea>
+    <div class="char-count" id="notesCount">0/160</div>
     <div class="row" style="display:flex; gap:8px;">
       <button type="submit" id="submitBtn" style="flex:1;">Add to crew</button>
       <button type="button" id="cancelEditBtn">Cancel</button>
@@ -222,9 +224,21 @@
   const submitBtn = document.getElementById('submitBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   const statusBanner = document.getElementById('statusBanner');
+  const notesCount = document.getElementById('notesCount');
+  const NOTES_MAX = 160;
 
   roomCheck.addEventListener('change', () => {
     roomCountRow.classList.toggle('show', roomCheck.checked);
+  });
+
+  plateInput.addEventListener('input', () => {
+    const pos = plateInput.selectionStart;
+    plateInput.value = plateInput.value.toUpperCase();
+    plateInput.setSelectionRange(pos, pos);
+  });
+
+  notesInput.addEventListener('input', () => {
+    notesCount.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
   });
 
   const OWNER_KEY = 'trip-crew-owner-tokens';
@@ -353,7 +367,7 @@
     const fields = {
       name,
       car: carInput.value.trim(),
-      plate: plateInput.value.trim(),
+      plate: plateInput.value.trim().toUpperCase(),
       riding_with: ridingWithInput.value.trim() || null,
       rsvp_status: rsvpInput.value,
       notes: notesInput.value.trim() || null,
@@ -403,6 +417,7 @@
     ridingWithInput.value = person.riding_with || '';
     rsvpInput.value = person.rsvp_status || 'confirmed';
     notesInput.value = person.notes || '';
+    notesCount.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
     photoInput.value = '';
     roomCheck.checked = !!person.room_people;
     roomCountRow.classList.toggle('show', roomCheck.checked);
@@ -425,6 +440,7 @@
     ridingWithInput.value = '';
     rsvpInput.value = 'confirmed';
     notesInput.value = '';
+    notesCount.textContent = `0/${NOTES_MAX}`;
     photoInput.value = '';
     roomCheck.checked = false;
     roomCountRow.classList.remove('show');
