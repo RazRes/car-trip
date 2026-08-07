@@ -25,14 +25,6 @@
     color: var(--text);
   }
   .wrap { max-width: 560px; margin: 0 auto; padding: 32px 16px; }
-  .header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
-  h1 { font-size: 20px; margin: 0 0 4px; }
-  .sub { color: var(--text-dim); font-size: 13px; margin-bottom: 20px; }
-  .io-buttons { display: flex; gap: 8px; }
-  .io-buttons button {
-    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
-    padding: 6px 12px; font-size: 12px;
-  }
   .status-banner {
     display: none; font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
   }
@@ -147,16 +139,6 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="header-row">
-    <div>
-      <h1>🚗 Echipaj Transalpina</h1>
-      <div class="sub">Cine vine, cu ce mașină. Partajat live cu grupul.</div>
-    </div>
-    <div class="io-buttons">
-      <button type="button" id="refreshBtn">Reîmprospătează</button>
-    </div>
-  </div>
-
   <div id="statusBanner" class="status-banner"></div>
 
   <div class="trip-banner">
@@ -459,8 +441,6 @@
     submitBtn.textContent = 'Adaugă în echipaj';
     cancelEditBtn.style.display = 'none';
   }
-
-  document.getElementById('refreshBtn').addEventListener('click', fetchCrew);
 
   sb.channel('crew_members_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_members' }, () => {
