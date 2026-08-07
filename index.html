@@ -199,6 +199,23 @@
     roomCountRow.classList.toggle('show', roomCheck.checked);
   });
 
+  const OWNER_KEY = 'trip-crew-owner-tokens';
+
+  function getOwnerTokens() {
+    try { return JSON.parse(localStorage.getItem(OWNER_KEY) || '{}'); } catch (e) { return {}; }
+  }
+
+  function rememberOwner(id, token) {
+    const tokens = getOwnerTokens();
+    tokens[id] = token;
+    localStorage.setItem(OWNER_KEY, JSON.stringify(tokens));
+  }
+
+  function canManage(person) {
+    if (!person.owner_token) return true;
+    return getOwnerTokens()[person.id] === person.owner_token;
+  }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
@@ -266,8 +283,10 @@
           <div class="meta">${escapeHtml(person.car) || 'No car set'}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Room for ${person.room_people}</span>` : ''}</div>
         </div>
         <div class="actions">
-          <button data-edit="${person.id}">Edit</button>
-          <button data-remove="${person.id}">Remove</button>
+          ${canManage(person) ? `
+            <button data-edit="${person.id}">Edit</button>
+            <button data-remove="${person.id}">Remove</button>
+          ` : ''}
         </div>
       </div>
     `).join('');
@@ -280,6 +299,8 @@
   }
 
   async function removePerson(id) {
+    const person = crew.find(p => p.id === id);
+    if (!confirm(`Remove ${person ? person.name : 'this entry'} from the crew?`)) return;
     const { error } = await sb.from('crew_members').delete().eq('id', id);
     if (error) { showStatus('Could not remove — ' + error.message, 'error'); return; }
     if (editingId === id) { editingId = null; resetForm(); }
@@ -321,8 +342,12 @@
       if (error) { showStatus('Could not save changes — ' + error.message, 'error'); return; }
       editingId = null;
     } else {
-      const { error } = await sb.from('crew_members').insert([{ ...fields, photo: fields.photo || null }]);
+      const ownerToken = crypto.randomUUID();
+      const { data, error } = await sb.from('crew_members')
+        .insert([{ ...fields, photo: fields.photo || null, owner_token: ownerToken }])
+        .select();
       if (error) { showStatus('Could not add — ' + error.message, 'error'); return; }
+      if (data && data[0]) rememberOwner(data[0].id, ownerToken);
     }
     hideStatus();
     resetForm();
