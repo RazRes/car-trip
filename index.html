@@ -363,6 +363,12 @@
 
   document.getElementById('refreshBtn').addEventListener('click', fetchCrew);
 
+  sb.channel('crew_members_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_members' }, () => {
+      fetchCrew();
+    })
+    .subscribe();
+
   fetchCrew();
 </script>
 </body>
