@@ -74,6 +74,7 @@
   .checkbox-row input[type="checkbox"] { width: auto; flex-shrink: 0; }
   #roomCountRow { display: none; }
   #roomCountRow.show { display: block; }
+  .room-count-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
   input {
     padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
     background: var(--bg); color: var(--text); font-size: 14px; width: 100%;
@@ -161,7 +162,8 @@
       Want a hotel room Sunday night?
     </label>
     <div id="roomCountRow">
-      <input id="roomCountInput" type="number" min="1" value="2" placeholder="How many people in the room?">
+      <label class="room-count-label">Total people sharing that one room (including you)</label>
+      <input id="roomCountInput" type="number" min="1" value="2">
     </div>
     <div class="row" style="display:flex; gap:8px;">
       <button type="submit" id="submitBtn" style="flex:1;">Add to crew</button>
@@ -261,7 +263,7 @@
           : `<div class="avatar">🙂</div>`}
         <div class="info">
           <div class="name">${escapeHtml(person.name)}</div>
-          <div class="meta">${escapeHtml(person.car) || 'No car set'}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Room x${person.room_people}</span>` : ''}</div>
+          <div class="meta">${escapeHtml(person.car) || 'No car set'}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Room for ${person.room_people}</span>` : ''}</div>
         </div>
         <div class="actions">
           <button data-edit="${person.id}">Edit</button>
