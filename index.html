@@ -180,7 +180,6 @@
     </div>
     <input id="carInput" placeholder="Mașină (ex. VW Golf GTI)">
     <input id="plateInput" placeholder="Număr de înmatriculare" style="text-transform: uppercase;">
-    <input id="ridingWithInput" placeholder="Mergi cu altcineva, nu cu mașina ta? (opțional)">
     <input id="photoInput" type="file" accept="image/*">
     <label class="checkbox-row">
       <input type="checkbox" id="roomCheck">
@@ -214,7 +213,6 @@
   const nameInput = document.getElementById('nameInput');
   const carInput = document.getElementById('carInput');
   const plateInput = document.getElementById('plateInput');
-  const ridingWithInput = document.getElementById('ridingWithInput');
   const rsvpInput = document.getElementById('rsvpInput');
   const notesInput = document.getElementById('notesInput');
   const photoInput = document.getElementById('photoInput');
@@ -368,7 +366,6 @@
       name,
       car: carInput.value.trim(),
       plate: plateInput.value.trim().toUpperCase(),
-      riding_with: ridingWithInput.value.trim() || null,
       rsvp_status: rsvpInput.value,
       notes: notesInput.value.trim() || null,
       room_people: roomCheck.checked ? (Number(roomCountInput.value) || 1) : null
@@ -414,7 +411,6 @@
     nameInput.value = person.name;
     carInput.value = person.car || '';
     plateInput.value = person.plate || '';
-    ridingWithInput.value = person.riding_with || '';
     rsvpInput.value = person.rsvp_status || 'confirmed';
     notesInput.value = person.notes || '';
     notesCount.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
@@ -437,7 +433,6 @@
     nameInput.value = '';
     carInput.value = '';
     plateInput.value = '';
-    ridingWithInput.value = '';
     rsvpInput.value = 'confirmed';
     notesInput.value = '';
     notesCount.textContent = `0/${NOTES_MAX}`;
