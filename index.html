@@ -47,8 +47,8 @@
     position: relative; z-index: 1; display: block;
     height: 100%; width: 100%; object-fit: contain;
   }
-  .trip-banner .stats-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; padding: 14px 16px; }
-  .trip-banner .stat { font-size: 13px; }
+  .trip-banner .stats-row { display: flex; gap: 16px; align-items: flex-start; padding: 14px 16px; flex-wrap: wrap; }
+  .trip-banner .stat { font-size: 13px; flex: 1 1 0; min-width: 0; }
   .trip-banner .stat .label { color: var(--text-dim); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
   .trip-banner .stat .value { font-weight: 700; font-size: 15px; }
   .trip-banner .stat-wide { flex-basis: 100%; }
@@ -157,6 +157,7 @@
       <div class="stat"><span class="label">Rămas</span><span class="value" id="countdownValue">—</span></div>
       <div class="stat"><span class="label">Direcție</span><span class="value">Transalpina</span></div>
       <div class="stat"><span class="label">Ora de plecare</span><span class="value">07:00</span></div>
+      <div class="stat"><span class="label">Ora de intalnire</span><span class="value">06:00</span></div>
       <div class="stat stat-wide">
         <span class="label">Loc de întâlnire</span>
         <span class="value" style="display:block; font-size:14px;">Auchan, Bulevardul Iuliu Maniu nr. 536, 560 și 560B, 061129 București</span>
