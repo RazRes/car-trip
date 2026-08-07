@@ -256,9 +256,26 @@
     localStorage.setItem(OWNER_KEY, JSON.stringify(tokens));
   }
 
+  let myManagedIds = new Set();
+
+  async function refreshManagedIds() {
+    const tokens = getOwnerTokens();
+    const ids = Object.keys(tokens);
+    const managed = new Set();
+    if (ids.length > 0) {
+      const { data, error } = await sb.from('crew_members').select('id,owner_token').in('id', ids);
+      if (!error && data) {
+        data.forEach(row => {
+          if (tokens[row.id] && tokens[row.id] === row.owner_token) managed.add(row.id);
+        });
+      }
+    }
+    myManagedIds = managed;
+  }
+
   function canManage(person) {
-    if (!person.owner_token) return true;
-    return getOwnerTokens()[person.id] === person.owner_token;
+    if (!person.has_owner) return true;
+    return myManagedIds.has(person.id);
   }
 
   function escapeHtml(str) {
@@ -302,11 +319,14 @@
   const STATUS_ORDER = { confirmed: 0, maybe: 1, cant_come: 2 };
 
   async function fetchCrew() {
-    const { data, error } = await sb.from('crew_members').select('*').order('created_at', { ascending: false });
+    const { data, error } = await sb.from('crew_members')
+      .select('id,name,car,plate,rsvp_status,room_people,notes,photo,has_owner,created_at')
+      .order('created_at', { ascending: false });
     if (error) {
       showStatus('Nu am putut încărca lista — ' + error.message, 'error');
       return;
     }
+    await refreshManagedIds();
     hideStatus();
     crew = (data || []).slice().sort((a, b) => {
       const oa = STATUS_ORDER[a.rsvp_status || 'confirmed'];
@@ -405,7 +425,7 @@
     } else {
       const ownerToken = crypto.randomUUID();
       const { data, error } = await sb.from('crew_members')
-        .insert([{ ...fields, photo: fields.photo || null, owner_token: ownerToken }])
+        .insert([{ ...fields, photo: fields.photo || null, owner_token: ownerToken, has_owner: true }])
         .select();
       if (error) { showStatus('Nu am putut adăuga — ' + error.message, 'error'); return; }
       if (data && data[0]) rememberOwner(data[0].id, ownerToken);
