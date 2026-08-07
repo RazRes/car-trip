@@ -66,10 +66,6 @@
   .summary-row .stat { font-size: 13px; }
   .summary-row .stat .label { color: var(--text-dim); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
   .summary-row .stat .value { font-weight: 700; font-size: 20px; color: var(--accent); }
-  .btn-secondary {
-    width: 100%; margin-bottom: 20px; background: var(--surface); color: var(--text); border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
   form {
     display: flex; flex-direction: column; gap: 8px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
@@ -170,8 +166,6 @@
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
     <div class="stat"><span class="label">Camere necesare</span><span class="value" id="summaryRooms">0</span></div>
   </div>
-
-  <button type="button" id="copySummaryBtn" class="btn-secondary">📋 Copiază rezumat pentru WhatsApp</button>
 
   <form id="addForm">
     <input id="nameInput" placeholder="Nume">
@@ -488,47 +482,6 @@
     document.getElementById('countdownValue').textContent = text;
   }
   updateCountdown();
-
-  const SUMMARY_GROUPS = [
-    { key: 'confirmed', label: '✅ Confirmați' },
-    { key: 'maybe', label: '❔ Poate' },
-    { key: 'cant_come', label: '❌ Nu vin' }
-  ];
-
-  function buildSummaryText() {
-    const lines = [
-      '🚗 Echipaj Transalpina — 19–20 septembrie',
-      '📍 Plecare 07:00, Auchan Militari (Bulevardul Iuliu Maniu)',
-      ''
-    ];
-    SUMMARY_GROUPS.forEach(group => {
-      const people = crew.filter(p => (p.rsvp_status || 'confirmed') === group.key);
-      if (people.length === 0) return;
-      lines.push(`${group.label} (${people.length}):`);
-      people.forEach(p => {
-        let line = `- ${p.name}`;
-        if (p.car) line += ` — ${p.car}`;
-        if (p.plate) line += ` (${p.plate})`;
-        if (p.room_people) line += ` 🏨 cameră x${p.room_people}`;
-        lines.push(line);
-      });
-      lines.push('');
-    });
-    const cars = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed').length;
-    const rooms = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && p.room_people).length;
-    lines.push(`Total: ${cars} mașini confirmate, ${rooms} camere necesare.`);
-    return lines.join('\n');
-  }
-
-  document.getElementById('copySummaryBtn').addEventListener('click', async () => {
-    const text = buildSummaryText();
-    try {
-      await navigator.clipboard.writeText(text);
-      showStatus('Rezumat copiat — lipește-l în WhatsApp.', 'info');
-    } catch (err) {
-      showStatus('Nu am putut copia automat. Textul: ' + text, 'error');
-    }
-  });
 
   sb.channel('crew_members_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_members' }, () => {
