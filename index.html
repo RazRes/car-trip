@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trip Crew</title>
+<title>Echipaj Transalpina</title>
 <style>
   :root {
     --bg: #15171c;
@@ -142,11 +142,11 @@
 <div class="wrap">
   <div class="header-row">
     <div>
-      <h1>🚗 Trip Crew</h1>
-      <div class="sub">Who's coming, what they're driving. Shared live with the group.</div>
+      <h1>🚗 Echipaj Transalpina</h1>
+      <div class="sub">Cine vine, cu ce mașină. Partajat live cu grupul.</div>
     </div>
     <div class="io-buttons">
-      <button type="button" id="refreshBtn">Refresh</button>
+      <button type="button" id="refreshBtn">Reîmprospătează</button>
     </div>
   </div>
 
@@ -155,46 +155,46 @@
   <div class="trip-banner">
     <div class="poster">
       <div class="poster-bg"></div>
-      <img src="trip-banner.png" alt="Ford RS/ST Romania — Transalpina event poster">
+      <img src="trip-banner.png" alt="Afiș eveniment Ford RS/ST România — Transalpina">
     </div>
     <div class="stats-row">
-      <div class="stat"><span class="label">Dates</span><span class="value">19–20 September</span></div>
-      <div class="stat"><span class="label">Direction</span><span class="value">Transalpina</span></div>
+      <div class="stat"><span class="label">Perioadă</span><span class="value">19–20 septembrie</span></div>
+      <div class="stat"><span class="label">Direcție</span><span class="value">Transalpina</span></div>
     </div>
   </div>
 
   <div class="summary-row">
-    <div class="stat"><span class="label">Cars coming</span><span class="value" id="summaryPeople">0</span></div>
-    <div class="stat"><span class="label">Rooms needed</span><span class="value" id="summaryRooms">0</span></div>
+    <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
+    <div class="stat"><span class="label">Camere necesare</span><span class="value" id="summaryRooms">0</span></div>
   </div>
 
   <form id="addForm">
-    <input id="nameInput" placeholder="Name">
+    <input id="nameInput" placeholder="Nume">
     <div>
-      <label class="field-label">RSVP</label>
+      <label class="field-label">Participare</label>
       <select id="rsvpInput">
-        <option value="confirmed">✅ Confirmed</option>
-        <option value="maybe">❔ Maybe</option>
-        <option value="cant_come">❌ Can't come</option>
+        <option value="confirmed">✅ Confirmat</option>
+        <option value="maybe">❔ Poate</option>
+        <option value="cant_come">❌ Nu pot veni</option>
       </select>
     </div>
-    <input id="carInput" placeholder="Car (e.g. VW Golf GTI)">
-    <input id="plateInput" placeholder="Number plate" style="text-transform: uppercase;">
-    <input id="ridingWithInput" placeholder="Riding with someone else instead? (optional)">
+    <input id="carInput" placeholder="Mașină (ex. VW Golf GTI)">
+    <input id="plateInput" placeholder="Număr de înmatriculare" style="text-transform: uppercase;">
+    <input id="ridingWithInput" placeholder="Mergi cu altcineva, nu cu mașina ta? (opțional)">
     <input id="photoInput" type="file" accept="image/*">
     <label class="checkbox-row">
       <input type="checkbox" id="roomCheck">
-      Want a hotel room Sunday night?
+      Vrei cameră de hotel duminică seara?
     </label>
     <div id="roomCountRow">
-      <label class="field-label">Total people sharing that one room (including you)</label>
+      <label class="field-label">Total persoane care împart camera (inclusiv tu)</label>
       <input id="roomCountInput" type="number" min="1" value="2">
     </div>
-    <textarea id="notesInput" rows="2" maxlength="160" placeholder="Notes (optional) — e.g. bringing a jack, leaving at 6am"></textarea>
+    <textarea id="notesInput" rows="2" maxlength="160" placeholder="Notițe (opțional) — ex. aduc portbagaj, plec la ora 6"></textarea>
     <div class="char-count" id="notesCount">0/160</div>
     <div class="row" style="display:flex; gap:8px;">
-      <button type="submit" id="submitBtn" style="flex:1;">Add to crew</button>
-      <button type="button" id="cancelEditBtn">Cancel</button>
+      <button type="submit" id="submitBtn" style="flex:1;">Adaugă în echipaj</button>
+      <button type="button" id="cancelEditBtn">Anulează</button>
     </div>
   </form>
 
@@ -299,7 +299,7 @@
   async function fetchCrew() {
     const { data, error } = await sb.from('crew_members').select('*').order('created_at', { ascending: false });
     if (error) {
-      showStatus('Could not load the crew list — ' + error.message, 'error');
+      showStatus('Nu am putut încărca lista — ' + error.message, 'error');
       return;
     }
     hideStatus();
@@ -307,7 +307,7 @@
     render();
   }
 
-  const STATUS_LABELS = { confirmed: '✅ Confirmed', maybe: '❔ Maybe', cant_come: "❌ Can't come" };
+  const STATUS_LABELS = { confirmed: '✅ Confirmat', maybe: '❔ Poate', cant_come: "❌ Nu vine" };
 
   function render() {
     const drivers = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && !p.riding_with);
@@ -316,7 +316,7 @@
     document.getElementById('summaryRooms').textContent = rooms.length;
 
     if (crew.length === 0) {
-      listEl.innerHTML = '<div class="empty">No one added yet.</div>';
+      listEl.innerHTML = '<div class="empty">Nimeni adăugat încă.</div>';
       return;
     }
     listEl.innerHTML = crew.map(person => {
@@ -328,13 +328,13 @@
           : `<div class="avatar">🙂</div>`}
         <div class="info">
           <div class="name"><span class="status-badge ${status}">${STATUS_LABELS[status]}</span>${escapeHtml(person.name)}</div>
-          <div class="meta">${person.riding_with ? `🚗 Riding with ${escapeHtml(person.riding_with)}` : (escapeHtml(person.car) || 'No car set')}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Room for ${person.room_people}</span>` : ''}</div>
+          <div class="meta">${person.riding_with ? `🚗 Merge cu ${escapeHtml(person.riding_with)}` : (escapeHtml(person.car) || 'Fără mașină')}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Cameră pentru ${person.room_people}</span>` : ''}</div>
           ${person.notes ? `<div class="notes">${escapeHtml(person.notes)}</div>` : ''}
         </div>
         <div class="actions">
           ${canManage(person) ? `
-            <button data-edit="${person.id}">Edit</button>
-            <button data-remove="${person.id}">Remove</button>
+            <button data-edit="${person.id}">Editează</button>
+            <button data-remove="${person.id}">Șterge</button>
           ` : ''}
         </div>
       </div>
@@ -350,9 +350,9 @@
 
   async function removePerson(id) {
     const person = crew.find(p => p.id === id);
-    if (!confirm(`Remove ${person ? person.name : 'this entry'} from the crew?`)) return;
+    if (!confirm(`Ștergi pe ${person ? person.name : 'această persoană'} din echipaj?`)) return;
     const { error } = await sb.from('crew_members').delete().eq('id', id);
-    if (error) { showStatus('Could not remove — ' + error.message, 'error'); return; }
+    if (error) { showStatus('Nu am putut șterge — ' + error.message, 'error'); return; }
     if (editingId === id) { editingId = null; resetForm(); }
     await fetchCrew();
   }
@@ -379,7 +379,7 @@
       try {
         fields.photo = await resizeImage(file, 500, 0.75);
       } catch (err) {
-        showStatus('Could not read that photo, saving without it.', 'error');
+        showStatus('Nu am putut citi poza, o salvez fără ea.', 'error');
       }
     }
 
@@ -392,14 +392,14 @@
       const update = { ...fields };
       if (update.photo === undefined) delete update.photo;
       const { error } = await sb.from('crew_members').update(update).eq('id', editingId);
-      if (error) { showStatus('Could not save changes — ' + error.message, 'error'); return; }
+      if (error) { showStatus('Nu am putut salva modificările — ' + error.message, 'error'); return; }
       editingId = null;
     } else {
       const ownerToken = crypto.randomUUID();
       const { data, error } = await sb.from('crew_members')
         .insert([{ ...fields, photo: fields.photo || null, owner_token: ownerToken }])
         .select();
-      if (error) { showStatus('Could not add — ' + error.message, 'error'); return; }
+      if (error) { showStatus('Nu am putut adăuga — ' + error.message, 'error'); return; }
       if (data && data[0]) rememberOwner(data[0].id, ownerToken);
     }
     hideStatus();
@@ -422,7 +422,7 @@
     roomCheck.checked = !!person.room_people;
     roomCountRow.classList.toggle('show', roomCheck.checked);
     roomCountInput.value = person.room_people || 2;
-    submitBtn.textContent = 'Save changes';
+    submitBtn.textContent = 'Salvează modificările';
     cancelEditBtn.style.display = 'inline-block';
     nameInput.focus();
     nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -445,7 +445,7 @@
     roomCheck.checked = false;
     roomCountRow.classList.remove('show');
     roomCountInput.value = 2;
-    submitBtn.textContent = 'Add to crew';
+    submitBtn.textContent = 'Adaugă în echipaj';
     cancelEditBtn.style.display = 'none';
   }
 
