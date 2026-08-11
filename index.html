@@ -149,6 +149,34 @@
     display: none; background: transparent; color: var(--text-dim); border: 1px solid var(--border);
   }
   .empty { color: var(--text-dim); font-size: 14px; text-align: center; padding: 24px 0; }
+  .info-btn {
+    display: block; width: 100%; background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    font-size: 14px; font-weight: 600; margin-bottom: 20px; text-align: center;
+  }
+  .info-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
+    z-index: 20; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    position: relative; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; max-width: 560px; width: 100%; max-height: 85vh;
+    overflow-y: auto; padding: 20px 18px;
+  }
+  .modal-close {
+    position: sticky; top: 0; float: right; margin-left: 8px;
+    background: var(--bg); color: var(--text-dim); border: 1px solid var(--border);
+    border-radius: 999px; width: 32px; height: 32px; padding: 0; font-size: 16px;
+    line-height: 1; cursor: pointer;
+  }
+  .modal-close:hover { color: var(--accent); border-color: var(--accent); }
+  .modal-content {
+    white-space: pre-wrap; font-size: 14px; line-height: 1.55; color: var(--text);
+    clear: both;
+  }
+  .modal-content a { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -184,6 +212,8 @@
       </div>
     </div>
   </div>
+
+  <button type="button" class="info-btn" id="tripInfoBtn">📋 Detalii complete despre traseu</button>
 
   <div class="summary-row">
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
@@ -226,6 +256,13 @@
   </form>
 
   <div id="list"></div>
+</div>
+
+<div class="modal-overlay" id="tripInfoOverlay">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="tripInfoClose" aria-label="Închide">✕</button>
+    <div class="modal-content" id="tripInfoContent"></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -343,6 +380,106 @@
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
   }
+
+  function linkify(text) {
+    const urlRe = /(https?:\/\/\S+)/g;
+    let result = '';
+    let lastIndex = 0;
+    let match;
+    while ((match = urlRe.exec(text)) !== null) {
+      result += escapeHtml(text.slice(lastIndex, match.index));
+      const url = match[0];
+      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+      lastIndex = match.index + url.length;
+    }
+    result += escapeHtml(text.slice(lastIndex));
+    return result;
+  }
+
+  const TRIP_INFO_TEXT = `🏔️ TRANSALPINA GRAND TOUR 2026 | Ford ST/RS România 🇷🇴
+
+Pregătiți-vă pentru un nou road trip al comunității! De data aceasta ne așteaptă un traseu spectaculos pe Transalpina, cu un convoi ST/RS, opriri pentru fotografii, videoclipuri și, bineînțeles, multă voie bună. 🔥
+
+📅 ZIUA 1 — Sâmbătă, 19.09.2026
+
+📍 Punct de întâlnire: parcarea Auchan Militari Center, la KFC
+🕕 Întâlnirea: 06:00
+🕖 Plecare: 07:00
+
+📌 Locație:
+https://maps.app.goo.gl/jnKQV1bew64KS5WK8?g_st=ic
+
+Vă rugăm să veniți cu plinul făcut și mașina curată. Între 06:00 și 07:00 ne vom organiza, vom bea o cafea, vom sta la povești și, bineînțeles, vom face câteva poze înainte de plecare. 📸☕
+
+🛣️ Ruta:
+București → Pitești → Vâlcea → Horezu → Novaci → Rânca → Transalpina → Voineasa
+
+⛽ Prima oprire – OMV Horezu
+
+Aici vom alimenta cu toții, astfel încât să plecăm împreună spre Transalpina. Tot aici ne vom întâlni și cu băieții care vin din Olt, Covasna și Brașov.
+
+📍 OMV Horezu:
+https://maps.app.goo.gl/EU6m6L5S4NVzvYC78?g_st=ic
+
+🚗 A doua oprire – Penny Novaci
+
+Vom face o oprire la Penny Novaci pentru a ne întâlni cu Sebi, care vine din Târgu Mureș.
+
+📍 Penny Novaci:
+https://maps.app.goo.gl/yfAjW7UiUJcVe7pd9?g_st=ic
+
+De aici vom porni cu toții spre Transalpina, unde începe partea spectaculoasă a traseului. 🏔️🔥
+
+📸 Opriri pentru foto/video
+
+La fel ca data trecută pe Transfagarasan, vom face mai multe opriri pe Transalpina pentru a trage cadre cu mașinile și convoiul.
+
+Dacă aveți prieteni fotografi sau videografi, nu ezitați să-i chemați cu noi! Cu cât avem mai multe camere și unghiuri, cu atât vom putea crea materiale mai spectaculoase. 🎥📸
+
+🏨 Destinația zilei: ZAN Hotel Voineasa
+
+https://maps.app.goo.gl/ymEdDZoK99rdRnDd6?g_st=ic
+
+⸻
+
+📅 ZIUA 2 — Duminică, 20.09.2026
+
+🍳 După micul dejun vom pleca de la cazare către Obârșia Lotrului, de unde vom continua traseul Transalpinei spre Sebeș.
+
+🏔️ Vom traversa astfel întregul sector spectaculos al Transalpinei și vom finaliza traseul la Sebeș.
+
+🛣️ Sebeș → Sibiu
+
+Din Sebeș vom continua pe autostradă către Sibiu.
+
+În funcție de timpul disponibil și de dorința grupului, putem face o oprire în centrul istoric al Sibiului. Vom decide împreună în ziua respectivă, în funcție de program și de condițiile de trafic.
+
+🚗 Traseul de întoarcere
+
+De la Sibiu, ruta finală va fi stabilită în funcție de aglomerație și condițiile de trafic.
+
+Avem ca variante:
+➡️ Valea Oltului
+➡️ Brașov – DN1
+➡️ Sibiu – Pitești
+
+⸻
+
+🔥 SITUAȚIA PARTICIPANȚILOR
+
+În acest moment avem:
+
+🚗 18 mașini confirmate
+🏨 15 persoane/echipaje au optat pentru cazare
+
+Dacă vreți să vă alăturați, dar nu v-ați exprimat încă votul, o puteți face prin linkul de mai jos.
+https://razres.github.io/car-trip/
+
+⚠️ Important: pentru cei care decid să vină de acum înainte, cazarea va trebui organizată individual.
+
+
+🔥🏔️ Ne vedem pe Transalpina!
+Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miros de benzină si anvelope 🚀`;
 
   function showStatus(message, type) {
     statusBanner.textContent = message;
@@ -560,6 +697,31 @@
     else text = 'Drum bun! 🏔️';
     document.getElementById('countdownValue').textContent = text;
   }
+  const tripInfoBtn = document.getElementById('tripInfoBtn');
+  const tripInfoOverlay = document.getElementById('tripInfoOverlay');
+  const tripInfoContent = document.getElementById('tripInfoContent');
+  const tripInfoClose = document.getElementById('tripInfoClose');
+
+  function openTripInfo() {
+    tripInfoContent.innerHTML = linkify(TRIP_INFO_TEXT);
+    tripInfoOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeTripInfo() {
+    tripInfoOverlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  tripInfoBtn.addEventListener('click', openTripInfo);
+  tripInfoClose.addEventListener('click', closeTripInfo);
+  tripInfoOverlay.addEventListener('click', (e) => {
+    if (e.target === tripInfoOverlay) closeTripInfo();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && tripInfoOverlay.classList.contains('show')) closeTripInfo();
+  });
+
   updateCountdown();
   updateSubmitState();
 
