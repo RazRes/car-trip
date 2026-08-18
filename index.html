@@ -78,6 +78,12 @@
     display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 4px 2px;
   }
   .checkbox-row input[type="checkbox"] { width: auto; flex-shrink: 0; }
+  .checkbox-row.disabled { opacity: 0.5; }
+  .room-full-msg { font-size: 12px; color: var(--accent); padding: 0 2px; margin-top: -2px; }
+  .rooms-full-note {
+    font-size: 12px; color: var(--accent); background: #3a2426; border: 1px solid #5a2f2f;
+    border-radius: 8px; padding: 8px 12px; margin: -12px 0 20px;
+  }
   #roomCountRow { display: none; }
   #roomCountRow.show { display: block; }
   .field-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
@@ -219,6 +225,7 @@
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
     <div class="stat"><span class="label">Camere necesare</span><span class="value" id="summaryRooms">0</span></div>
   </div>
+  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">🔴 Cazare epuizată — toate cele 16 camere disponibile sunt deja rezervate.</div>
 
   <form id="addForm">
     <input id="nameInput" placeholder="Nume">
@@ -239,10 +246,11 @@
       <input id="photoInput" type="file" accept="image/*" hidden>
       <span class="file-name" id="photoFileName"></span>
     </div>
-    <label class="checkbox-row">
+    <label class="checkbox-row" id="roomCheckRow">
       <input type="checkbox" id="roomCheck">
-      Vrei cameră de hotel sambata seara?
+      <span id="roomCheckLabel">Vrei cameră de hotel sambata seara?</span>
     </label>
+    <div id="roomFullMsg" class="room-full-msg" style="display:none;">❌ Nu mai sunt camere disponibile — toate cele 16 camere sunt rezervate.</div>
     <div id="roomCountRow">
       <label class="field-label">Total persoane care împart camera (inclusiv tu)</label>
       <input id="roomCountInput" type="number" min="1" value="2">
@@ -285,8 +293,14 @@
   const photoInput = document.getElementById('photoInput');
   const photoFileName = document.getElementById('photoFileName');
   const roomCheck = document.getElementById('roomCheck');
+  const roomCheckRow = document.getElementById('roomCheckRow');
+  const roomFullMsg = document.getElementById('roomFullMsg');
+  const roomsFullNote = document.getElementById('roomsFullNote');
   const roomCountRow = document.getElementById('roomCountRow');
   const roomCountInput = document.getElementById('roomCountInput');
+  const TOTAL_ROOMS = 16;
+  const ROOMS_TAKEN = 16;
+  const ROOMS_AVAILABLE = ROOMS_TAKEN < TOTAL_ROOMS;
   const submitBtn = document.getElementById('submitBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   const statusBanner = document.getElementById('statusBanner');
@@ -325,6 +339,15 @@
   roomCheck.addEventListener('change', () => {
     roomCountRow.classList.toggle('show', roomCheck.checked);
   });
+
+  function applyRoomAvailability() {
+    if (ROOMS_AVAILABLE) return;
+    roomCheck.disabled = true;
+    roomCountInput.disabled = true;
+    roomCheckRow.classList.add('disabled');
+    roomFullMsg.style.display = 'block';
+    roomsFullNote.style.display = 'block';
+  }
 
   photoInput.addEventListener('change', () => {
     const file = photoInput.files[0];
@@ -724,6 +747,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
 
   updateCountdown();
   updateSubmitState();
+  applyRoomAvailability();
 
   sb.channel('crew_members_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_members' }, () => {
