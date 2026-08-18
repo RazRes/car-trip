@@ -84,6 +84,7 @@
     font-size: 12px; color: var(--accent); background: #3a2426; border: 1px solid #5a2f2f;
     border-radius: 8px; padding: 8px 12px; margin: -12px 0 20px;
   }
+  .room-full-msg a, .rooms-full-note a { color: var(--accent); font-weight: 700; text-decoration: underline; }
   #roomCountRow { display: none; }
   #roomCountRow.show { display: block; }
   .field-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
@@ -225,7 +226,7 @@
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
     <div class="stat"><span class="label">Camere necesare</span><span class="value" id="summaryRooms">0</span></div>
   </div>
-  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">🔴 Cazare epuizată — toate cele 16 camere disponibile sunt deja rezervate.</div>
+  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">🔴 Cazare epuizată — toate cele 16 camere disponibile sunt deja rezervate. Puteți suna pe cont propriu la hotel (<a href="tel:0740010567">0740 010 567</a>), poate găsiți camere încă disponibile!</div>
 
   <form id="addForm">
     <input id="nameInput" placeholder="Nume">
@@ -250,7 +251,7 @@
       <input type="checkbox" id="roomCheck">
       <span id="roomCheckLabel">Vrei cameră de hotel sambata seara?</span>
     </label>
-    <div id="roomFullMsg" class="room-full-msg" style="display:none;">❌ Nu mai sunt camere disponibile — toate cele 16 camere sunt rezervate.</div>
+    <div id="roomFullMsg" class="room-full-msg" style="display:none;">❌ Nu mai sunt camere disponibile — toate cele 16 camere sunt rezervate. Puteți suna pe cont propriu la hotel (<a href="tel:0740010567">0740 010 567</a>), poate găsiți camere încă disponibile!</div>
     <div id="roomCountRow">
       <label class="field-label">Total persoane care împart camera (inclusiv tu)</label>
       <input id="roomCountInput" type="number" min="1" value="2">
