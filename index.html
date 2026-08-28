@@ -209,7 +209,7 @@
     <h2>Acces echipaj</h2>
     <p>Introdu codul primit în grup pentru a continua.</p>
     <form id="loginForm">
-      <input id="loginInput" type="tel" inputmode="numeric" autocomplete="off" placeholder="••••••" maxlength="12">
+      <input id="loginInput" type="text" autocomplete="off" autocapitalize="characters" placeholder="••••••" maxlength="12">
       <div id="loginError">Cod greșit. Încearcă din nou.</div>
       <button type="submit">Intră</button>
     </form>
@@ -310,29 +310,29 @@
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const APP_PASSWORD = '192026';
-  const LOGIN_KEY = 'car-trip-unlocked';
+  const ADMIN_PASSWORD = '97ASX';
   const loginOverlay = document.getElementById('loginOverlay');
   const loginForm = document.getElementById('loginForm');
   const loginInput = document.getElementById('loginInput');
   const loginError = document.getElementById('loginError');
   const appWrap = document.getElementById('appWrap');
 
-  function unlockApp() {
+  function unlockApp(isAdmin) {
+    showPhones = isAdmin;
     loginOverlay.classList.remove('show');
     appWrap.style.display = 'block';
+    render();
   }
 
-  if (localStorage.getItem(LOGIN_KEY) === 'true') {
-    unlockApp();
-  } else {
-    loginInput.focus();
-  }
+  loginInput.focus();
 
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (loginInput.value.trim() === APP_PASSWORD) {
-      localStorage.setItem(LOGIN_KEY, 'true');
-      unlockApp();
+    const value = loginInput.value.trim();
+    if (value === APP_PASSWORD) {
+      unlockApp(false);
+    } else if (value.toUpperCase() === ADMIN_PASSWORD) {
+      unlockApp(true);
     } else {
       loginError.style.display = 'block';
       loginInput.value = '';
@@ -344,6 +344,7 @@
 
   let crew = [];
   let editingId = null;
+  let showPhones = false;
 
   const listEl = document.getElementById('list');
   const nameInput = document.getElementById('nameInput');
@@ -640,7 +641,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
           : `<div class="avatar">🙂</div>`}
         <div class="info">
           <div class="name"><span class="status-badge ${status}">${STATUS_LABELS[status]}</span>${escapeHtml(person.name)}</div>
-          <div class="meta">${person.riding_with ? `🚗 Merge cu ${escapeHtml(person.riding_with)}` : (escapeHtml(person.car) || 'Fără mașină')}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Cameră pentru ${person.room_people}</span>` : ''}${person.phone ? `<a class="phone" href="tel:${encodeURIComponent(person.phone.replace(/[^0-9+]/g, ''))}">📞 ${escapeHtml(person.phone)}</a>` : ''}</div>
+          <div class="meta">${person.riding_with ? `🚗 Merge cu ${escapeHtml(person.riding_with)}` : (escapeHtml(person.car) || 'Fără mașină')}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Cameră pentru ${person.room_people}</span>` : ''}${person.phone && showPhones ? `<a class="phone" href="tel:${encodeURIComponent(person.phone.replace(/[^0-9+]/g, ''))}">📞 ${escapeHtml(person.phone)}</a>` : ''}</div>
           ${person.notes ? `<div class="notes">${escapeHtml(person.notes)}</div>` : ''}
         </div>
         <div class="actions">
