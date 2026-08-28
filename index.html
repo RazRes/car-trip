@@ -184,7 +184,6 @@
     clear: both;
   }
   .modal-content a { color: var(--accent); }
-  #appWrap { display: none; }
   .login-box { text-align: center; }
   .login-box .lock-icon { font-size: 32px; margin-bottom: 8px; }
   .login-box h2 { margin: 0 0 4px; font-size: 16px; }
@@ -203,11 +202,12 @@
 </style>
 </head>
 <body>
-<div class="modal-overlay show" id="loginOverlay">
+<div class="modal-overlay" id="loginOverlay">
   <div class="modal-box login-box">
+    <button type="button" class="modal-close" id="loginClose" aria-label="Închide">✕</button>
     <div class="lock-icon">🔒</div>
-    <h2>Acces echipaj</h2>
-    <p>Introdu codul primit în grup pentru a continua.</p>
+    <h2>Vezi numerele de telefon</h2>
+    <p>Introdu codul primit în grup pentru a vedea numerele de telefon.</p>
     <form id="loginForm">
       <input id="loginInput" type="text" autocomplete="off" autocapitalize="characters" placeholder="••••••" maxlength="12">
       <div id="loginError">Cod greșit. Încearcă din nou.</div>
@@ -216,7 +216,7 @@
   </div>
 </div>
 
-<div class="wrap" id="appWrap">
+<div class="wrap">
   <div id="statusBanner" class="status-banner"></div>
 
   <div class="trip-banner">
@@ -250,6 +250,7 @@
   </div>
 
   <button type="button" class="info-btn" id="tripInfoBtn">📋 Detalii complete despre traseu</button>
+  <button type="button" class="info-btn" id="showPhonesBtn">📞 Vezi numerele de telefon</button>
 
   <div class="summary-row">
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
@@ -309,30 +310,46 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_VG6zPybiK1mrU6lWMh9q4w_RHNgfKQk';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const APP_PASSWORD = '192026';
-  const ADMIN_PASSWORD = '97ASX';
+  const PHONE_PASSWORD = '192026';
   const loginOverlay = document.getElementById('loginOverlay');
   const loginForm = document.getElementById('loginForm');
   const loginInput = document.getElementById('loginInput');
   const loginError = document.getElementById('loginError');
-  const appWrap = document.getElementById('appWrap');
+  const loginClose = document.getElementById('loginClose');
+  const showPhonesBtn = document.getElementById('showPhonesBtn');
 
-  function unlockApp(isAdmin) {
-    showPhones = isAdmin;
+  function openLogin() {
+    loginError.style.display = 'none';
+    loginInput.value = '';
+    loginOverlay.classList.add('show');
+    loginInput.focus();
+  }
+
+  function closeLogin() {
     loginOverlay.classList.remove('show');
-    appWrap.style.display = 'block';
+  }
+
+  function unlockPhones() {
+    showPhones = true;
+    showPhonesBtn.style.display = 'none';
+    closeLogin();
     render();
   }
 
-  loginInput.focus();
+  showPhonesBtn.addEventListener('click', openLogin);
+  loginClose.addEventListener('click', closeLogin);
+  loginOverlay.addEventListener('click', (e) => {
+    if (e.target === loginOverlay) closeLogin();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && loginOverlay.classList.contains('show')) closeLogin();
+  });
 
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const value = loginInput.value.trim();
-    if (value === APP_PASSWORD) {
-      unlockApp(false);
-    } else if (value.toUpperCase() === ADMIN_PASSWORD) {
-      unlockApp(true);
+    if (value === PHONE_PASSWORD) {
+      unlockPhones();
     } else {
       loginError.style.display = 'block';
       loginInput.value = '';
