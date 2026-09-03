@@ -380,8 +380,6 @@
   const roomCountRow = document.getElementById('roomCountRow');
   const roomCountInput = document.getElementById('roomCountInput');
   const TOTAL_ROOMS = 16;
-  const ROOMS_TAKEN = 16;
-  const ROOMS_AVAILABLE = ROOMS_TAKEN < TOTAL_ROOMS;
   const submitBtn = document.getElementById('submitBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   const statusBanner = document.getElementById('statusBanner');
@@ -422,12 +420,15 @@
   });
 
   function applyRoomAvailability() {
-    if (ROOMS_AVAILABLE) return;
-    roomCheck.disabled = true;
-    roomCountInput.disabled = true;
-    roomCheckRow.classList.add('disabled');
-    roomFullMsg.style.display = 'block';
-    roomsFullNote.style.display = 'block';
+    const roomsTaken = crew.filter(p =>
+      (p.rsvp_status || 'confirmed') === 'confirmed' && p.room_people && p.id !== editingId
+    ).length;
+    const roomsAvailable = roomsTaken < TOTAL_ROOMS;
+    roomCheck.disabled = !roomsAvailable;
+    roomCountInput.disabled = !roomsAvailable;
+    roomCheckRow.classList.toggle('disabled', !roomsAvailable);
+    roomFullMsg.style.display = roomsAvailable ? 'none' : 'block';
+    roomsFullNote.style.display = roomsAvailable ? 'none' : 'block';
   }
 
   photoInput.addEventListener('change', () => {
@@ -644,6 +645,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
     const rooms = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && p.room_people);
     document.getElementById('summaryPeople').textContent = drivers.length;
     document.getElementById('summaryRooms').textContent = rooms.length;
+    applyRoomAvailability();
 
     if (crew.length === 0) {
       listEl.innerHTML = '<div class="empty">Nimeni adăugat încă.</div>';
@@ -759,6 +761,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
     roomCheck.checked = !!person.room_people;
     roomCountRow.classList.toggle('show', roomCheck.checked);
     roomCountInput.value = person.room_people || 2;
+    applyRoomAvailability();
     submitBtn.textContent = 'Salvează modificările';
     cancelEditBtn.style.display = 'inline-block';
     nameInput.focus();
@@ -785,6 +788,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
     roomCheck.checked = false;
     roomCountRow.classList.remove('show');
     roomCountInput.value = 2;
+    applyRoomAvailability();
     submitBtn.textContent = 'Adaugă mașina';
     cancelEditBtn.style.display = 'none';
   }
