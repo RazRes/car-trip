@@ -206,8 +206,8 @@
   <div class="modal-box login-box">
     <button type="button" class="modal-close" id="loginClose" aria-label="Închide">✕</button>
     <div class="lock-icon">🔒</div>
-    <h2>Vezi numerele de telefon</h2>
-    <p>Introdu codul primit în grup pentru a vedea numerele de telefon.</p>
+    <h2 id="loginTitle">Vezi numerele de telefon</h2>
+    <p id="loginSubtitle">Introdu codul primit în grup pentru a vedea numerele de telefon.</p>
     <form id="loginForm">
       <input id="loginInput" type="text" autocomplete="off" autocapitalize="characters" placeholder="••••••" maxlength="12">
       <div id="loginError">Cod greșit. Încearcă din nou.</div>
@@ -317,8 +317,15 @@
   const loginError = document.getElementById('loginError');
   const loginClose = document.getElementById('loginClose');
   const showPhonesBtn = document.getElementById('showPhonesBtn');
+  const loginTitle = document.getElementById('loginTitle');
+  const loginSubtitle = document.getElementById('loginSubtitle');
 
-  function openLogin() {
+  let onLoginSuccess = null;
+
+  function openLogin(title, message, onSuccess) {
+    loginTitle.textContent = title || 'Vezi numerele de telefon';
+    loginSubtitle.textContent = message || 'Introdu codul primit în grup pentru a vedea numerele de telefon.';
+    onLoginSuccess = onSuccess || unlockPhones;
     loginError.style.display = 'none';
     loginInput.value = '';
     loginOverlay.classList.add('show');
@@ -327,16 +334,16 @@
 
   function closeLogin() {
     loginOverlay.classList.remove('show');
+    onLoginSuccess = null;
   }
 
   function unlockPhones() {
     showPhones = true;
     showPhonesBtn.style.display = 'none';
-    closeLogin();
     render();
   }
 
-  showPhonesBtn.addEventListener('click', openLogin);
+  showPhonesBtn.addEventListener('click', () => openLogin());
   loginClose.addEventListener('click', closeLogin);
   loginOverlay.addEventListener('click', (e) => {
     if (e.target === loginOverlay) closeLogin();
@@ -349,7 +356,9 @@
     e.preventDefault();
     const value = loginInput.value.trim();
     if (value === PHONE_PASSWORD) {
-      unlockPhones();
+      const onSuccess = onLoginSuccess;
+      closeLogin();
+      if (onSuccess) onSuccess();
     } else {
       loginError.style.display = 'block';
       loginInput.value = '';
@@ -653,6 +662,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
     }
     listEl.innerHTML = crew.map(person => {
       const status = person.rsvp_status || 'confirmed';
+      const mine = canManage(person);
       return `
       <div class="item ${status === 'cant_come' ? 'cant-come' : ''}">
         ${person.photo
@@ -664,10 +674,8 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
           ${person.notes ? `<div class="notes">${escapeHtml(person.notes)}</div>` : ''}
         </div>
         <div class="actions">
-          ${canManage(person) ? `
-            <button data-edit="${person.id}">Editează</button>
-            <button data-remove="${person.id}">Șterge</button>
-          ` : ''}
+          ${mine ? `<button data-edit="${person.id}">Editează</button>` : ''}
+          <button data-${mine ? 'remove' : 'remove-locked'}="${person.id}">Șterge</button>
         </div>
       </div>
     `;
@@ -675,9 +683,21 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
     listEl.querySelectorAll('button[data-remove]').forEach(btn => {
       btn.addEventListener('click', () => removePerson(btn.dataset.remove));
     });
+    listEl.querySelectorAll('button[data-remove-locked]').forEach(btn => {
+      btn.addEventListener('click', () => requestDeleteWithCode(btn.dataset.removeLocked));
+    });
     listEl.querySelectorAll('button[data-edit]').forEach(btn => {
       btn.addEventListener('click', () => startEdit(btn.dataset.edit));
     });
+  }
+
+  function requestDeleteWithCode(id) {
+    const person = crew.find(p => p.id === id);
+    openLogin(
+      'Cod necesar pentru ștergere',
+      `Introdu codul admin pentru a șterge pe ${person ? person.name : 'această persoană'} din echipaj.`,
+      () => removePerson(id)
+    );
   }
 
   async function removePerson(id) {
