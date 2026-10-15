@@ -244,3 +244,39 @@ test('location: updates are rate limited, stale positions are hidden, deleting a
   const gone = await db.query(`select count(*)::int as n from locations where entry_id = $1::uuid`, [b.json.id]);
   assert.equal(gone.rows[0].n, 0, 'cascade on delete');
 });
+
+const arrive = (method, id, { headers = {}, body, stop } = {}) =>
+  call(handlers.checkin, method, id ? `/api/checkin?id=${id}${stop ? `&stop=${stop}` : ''}` : '/api/checkin', { headers, body });
+
+test('checkin: owners tick off stops, participants see who arrived, strangers see nothing', async () => {
+  const a = await create(person({ name: 'Arrived' }));
+  const b = await create(person({ name: 'Watcher' }));
+
+  assert.equal((await arrive('POST', a.json.id, { body: { stop: 'brasov' } })).status, 403, 'no token');
+  assert.equal((await arrive('POST', a.json.id, { headers: ownerHdr(b), body: { stop: 'brasov' } })).status, 403, "someone else's token");
+  assert.equal((await arrive('POST', a.json.id, { headers: ownerHdr(a), body: { stop: 'nowhere' } })).status, 400, 'unknown stop');
+  assert.equal((await arrive('POST', a.json.id, { headers: ownerHdr(a), body: { stop: 'brasov' } })).status, 200);
+  assert.equal((await arrive('POST', a.json.id, { headers: ownerHdr(a), body: { stop: 'brasov' } })).status, 200, 'ticking twice is harmless');
+
+  assert.equal((await arrive('GET', null, {})).status, 403, 'anonymous');
+  const seen = await arrive('GET', null, { headers: tokensHdr(b) });
+  assert.equal(seen.status, 200);
+  const rows = seen.json.checkins.filter(c => c.id === a.json.id);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].stop, 'brasov');
+  assert.equal(rows[0].name, 'Arrived');
+  assert.equal(rows[0].mine, false);
+  assert.ok(Math.abs(rows[0].at - Date.now()) < 60000, 'timestamp in ms');
+  assert.equal('owner_token' in rows[0], false);
+  assert.equal((await arrive('GET', null, { headers: tokensHdr(a) })).json.checkins.find(c => c.id === a.json.id).mine, true);
+  assert.equal((await arrive('GET', null, { headers: { 'x-access-code': 'secret1' } })).status, 200, 'access code');
+
+  assert.equal((await arrive('DELETE', a.json.id, { headers: ownerHdr(b), stop: 'brasov' })).status, 403);
+  assert.equal((await arrive('DELETE', a.json.id, { headers: ownerHdr(a), stop: 'brasov' })).status, 200);
+  assert.equal((await arrive('GET', null, { headers: tokensHdr(b) })).json.checkins.some(c => c.id === a.json.id), false, 'undone');
+
+  await arrive('POST', a.json.id, { headers: ownerHdr(a), body: { stop: 'start' } });
+  await call(handlers.crew, 'DELETE', `/api/crew?id=${a.json.id}`, { headers: ownerHdr(a) });
+  const gone = await db.query(`select count(*)::int as n from checkins where entry_id = $1::uuid`, [a.json.id]);
+  assert.equal(gone.rows[0].n, 0, 'cascade on delete');
+});

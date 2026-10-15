@@ -38,3 +38,11 @@ create table if not exists locations (
   speed      real,
   updated_at timestamptz not null default now()
 );
+
+-- Check-ins: which stop of the route an entry says it has reached (no location is stored)
+create table if not exists checkins (
+  entry_id   uuid not null references crew_members(id) on delete cascade,
+  stop       text not null,
+  created_at timestamptz not null default now(),
+  primary key (entry_id, stop)
+);

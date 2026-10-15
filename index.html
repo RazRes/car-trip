@@ -130,6 +130,14 @@
   .stop-body { flex: 1; min-width: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-bottom: 20px; }
   .stop-name { font-size: 16px; font-weight: 600; line-height: 1.3; }
   .stop-sub { font-size: 13px; color: var(--dim); }
+  .stop-check { margin-top: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .stop-check:empty { display: none; }
+  .check-btn { min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--mid); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .check-btn.done { border-color: var(--green); color: var(--green); }
+  .check-btn:disabled { opacity: 0.6; }
+  .check-who { font-size: 13px; color: var(--dim); }
+  .check-who b { color: var(--mid); font-weight: 600; }
+  .check-error { font-size: 13px; color: #FF8C8C; }
   .stop-tag { flex: none; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; background: var(--surface2); color: var(--mid); }
   .stop-last .stop-tag { background: var(--accent); color: var(--on-accent); }
 
@@ -443,13 +451,13 @@
 
   <div class="section-head"><h2>Traseul</h2><span class="aside">7 opriri</span></div>
   <div class="route">
-    <div class="stop stop-first"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">București</div><div class="stop-sub">Punct de întâlnire, A3 spre Ploiești</div></div><span class="stop-tag">Start</span></div></div>
-    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Sărata Monteoru</div></div></div></div>
-    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Măgura</div></div></div></div>
-    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Barajul Siriu</div><div class="stop-sub">Dacă timpul permite</div></div><span class="stop-tag">Foto</span></div></div>
-    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Brașov</div><div class="stop-sub">La intrare în oraș</div></div><span class="stop-tag">Alimentare</span></div></div>
-    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Serpentinele Cheia</div></div></div></div>
-    <div class="stop stop-last"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Moșia Zeletin</div><div class="stop-sub">Destinația finală</div></div><span class="stop-tag">Final</span></div></div>
+    <div data-stop="start" class="stop stop-first"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">București</div><div class="stop-sub">Punct de întâlnire, A3 spre Ploiești</div></div><span class="stop-tag">Start</span></div></div>
+    <div data-stop="sarata" class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Sărata Monteoru</div></div></div></div>
+    <div data-stop="magura" class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Măgura</div></div></div></div>
+    <div data-stop="siriu" class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Barajul Siriu</div><div class="stop-sub">Dacă timpul permite</div></div><span class="stop-tag">Foto</span></div></div>
+    <div data-stop="brasov" class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Brașov</div><div class="stop-sub">La intrare în oraș</div></div><span class="stop-tag">Alimentare</span></div></div>
+    <div data-stop="cheia" class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Serpentinele Cheia</div></div></div></div>
+    <div data-stop="zeletin" class="stop stop-last"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Moșia Zeletin</div><div class="stop-sub">Destinația finală</div></div><span class="stop-tag">Final</span></div></div>
   </div>
 
   <div class="section-head"><h2>Harta live</h2><span class="aside" id="mapAside">doar participanți</span></div>
@@ -1058,6 +1066,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     document.getElementById('roomsBar').style.width = Math.min(100, (rooms.length / totalRooms) * 100) + '%';
     applyRoomAvailability();
     updateShareUI();
+    renderCheckins();
     if (mapAuthorized() !== lastMapAuth) refreshMap();
 
     if (crew.length === 0) {
@@ -1427,6 +1436,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   async function refreshMap() {
     const ok = mapAuthorized();
     lastMapAuth = ok;
+    refreshCheckins();
     mapLocked.hidden = ok;
     mapWrap.hidden = !ok;
     mapAside.textContent = ok ? 'live' : 'doar participanți';
@@ -1455,6 +1465,87 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   ));
   setInterval(() => { if (document.visibilityState === 'visible' && mapAuthorized()) refreshMap(); }, MAP_POLL_MS);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshMap(); });
+
+  // ---------- check-ins at the stops ----------
+  const STOP_KEYS = ['start', 'sarata', 'magura', 'siriu', 'brasov', 'cheia', 'zeletin'];
+  let checkins = [];
+  let checkinBusy = false;
+  let checkinError = { stop: '', text: '' };
+  const stopBoxes = {};
+  for (const key of STOP_KEYS) {
+    const stop = document.querySelector(`.stop[data-stop="${key}"]`);
+    const box = document.createElement('div');
+    box.className = 'stop-check';
+    stop.querySelector('.stop-body > div').appendChild(box);
+    stopBoxes[key] = box;
+  }
+
+  function formatClock(ms) {
+    return new Date(ms).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderCheckins() {
+    const myId = myEntryId();
+    const viewer = mapAuthorized();
+    for (const key of STOP_KEYS) {
+      const box = stopBoxes[key];
+      box.textContent = '';
+      const here = checkins.filter(c => c.stop === key);
+      const mine = here.find(c => c.mine);
+      if (myId) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'check-btn' + (mine ? ' done' : '');
+        btn.disabled = checkinBusy;
+        btn.textContent = mine ? `✓ Ai ajuns la ${formatClock(mine.at)} · Anulează` : 'Am ajuns aici';
+        btn.addEventListener('click', () => toggleCheckin(key, !!mine));
+        box.appendChild(btn);
+      }
+      if (viewer && here.length) {
+        const who = document.createElement('div');
+        who.className = 'check-who';
+        const names = here.slice(0, 6).map(c => `<b>${escapeHtml(c.name)}</b>`).join(', ');
+        who.innerHTML = `Au ajuns (${here.length}): ${names}${here.length > 6 ? ` și încă ${here.length - 6}` : ''}`;
+        box.appendChild(who);
+      }
+      if (checkinError.stop === key) {
+        const err = document.createElement('div');
+        err.className = 'check-error';
+        err.textContent = checkinError.text;
+        box.appendChild(err);
+      }
+    }
+  }
+
+  async function refreshCheckins() {
+    if (!mapAuthorized()) { checkins = []; renderCheckins(); return; }
+    try {
+      const data = await api('/api/checkin', { headers: authHeaders() });
+      checkins = data.checkins || [];
+    } catch (err) {
+      if (err.status === 403) checkins = [];
+    }
+    renderCheckins();
+  }
+
+  async function toggleCheckin(stop, undo) {
+    const id = myEntryId();
+    if (!id || checkinBusy) return;
+    checkinBusy = true;
+    checkinError = { stop: '', text: '' };
+    renderCheckins();
+    try {
+      await api(`/api/checkin?id=${encodeURIComponent(id)}${undo ? '&stop=' + stop : ''}`, {
+        method: undo ? 'DELETE' : 'POST',
+        headers: { 'x-owner-token': getOwnerTokens()[id] || '' },
+        body: undo ? undefined : { stop }
+      });
+    } catch (err) {
+      checkinError = { stop, text: 'Nu am putut salva (' + (err.message || 'eroare de rețea') + '). Încearcă din nou.' };
+    }
+    checkinBusy = false;
+    await refreshCheckins();
+  }
 
   // ---------- sharing my own location ----------
   let watchId = null;

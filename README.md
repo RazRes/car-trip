@@ -32,6 +32,13 @@ map to other registered participants, or to anyone who enters `ACCESS_CODE`.
   group; for heavy use switch to a tile provider with a key (see the OSM tile usage policy).
 - A web page cannot track location in the background, so this only works while the page is open.
 
+## Stop check-ins
+
+Each stop on the route has an "Am ajuns aici" button for people with a registered entry. It needs no
+location: it just records which stop and when (table `checkins`), and registered participants (or the
+`ACCESS_CODE` holder) see who has arrived at each stop. The owner can undo it. Run `db/schema.sql`
+again so the `checkins` table exists.
+
 ## Notes
 
 - Emails are unique, never shown publicly, and only returned to the entry's owner.
