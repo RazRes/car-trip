@@ -263,6 +263,7 @@
   .share-box { padding: 16px 18px 18px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
   .share-state { font-size: 14px; color: var(--dim); }
   .share-state.on { color: var(--green); font-weight: 600; }
+  .share-state.error { color: #FF8C8C; font-weight: 600; }
   #shareError { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; text-align: left; }
 
   /* ---------- dialogs ---------- */
@@ -1347,6 +1348,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   const shareOverlay = document.getElementById('shareOverlay');
   const shareError = document.getElementById('shareError');
 
+  let shareProblem = '';
   let liveMap = null;
   let mapFitted = false;
   let lastMapAuth = null;
@@ -1474,8 +1476,10 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     shareBtn.hidden = !sharing && !id;
     shareBtn.textContent = sharing ? 'Oprește distribuirea' : 'Distribuie locația mea';
     shareBtn.className = sharing ? 'btn-secondary btn-ghost' : 'btn-primary';
-    shareState.classList.toggle('on', sharing);
-    if (sharing) shareState.textContent = lastSentAt ? 'Îți distribui locația · actualizat ' + formatAge((Date.now() - lastSentAt) / 1000) : 'Se caută locația ta…';
+    shareState.classList.toggle('on', sharing && !shareProblem);
+    shareState.classList.toggle('error', !!shareProblem);
+    if (shareProblem) shareState.textContent = shareProblem;
+    else if (sharing) shareState.textContent = lastSentAt ? 'Îți distribui locația · actualizat ' + formatAge((Date.now() - lastSentAt) / 1000) : 'Se caută locația ta…';
     else shareState.textContent = id ? 'Locația ta nu este distribuită.' : 'Înscrie-te sau recuperează-ți înscrierea ca să îți poți distribui locația.';
   }
 
@@ -1502,10 +1506,16 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
         }
       });
       lastSentAt = Date.now();
+      shareProblem = '';
       updateShareUI();
       refreshMap();
     } catch (err) {
-      if (err.status === 403 || err.status === 404) stopSharing('Distribuirea s-a oprit: înscrierea nu mai este validă.');
+      if (err.status === 403 || err.status === 404) stopSharing('Distribuirea s-a oprit: înscrierea nu mai este validă.', 'error', true);
+      else if (err.status === 429) { /* sent too soon after the previous one: the next tick retries */ }
+      else {
+        shareProblem = 'Locația a fost găsită, dar nu s-a putut trimite (' + (err.message || 'eroare de rețea') + '). Mai încerc.';
+        updateShareUI();
+      }
     }
   }
 
@@ -1516,8 +1526,21 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     if (first) sendPosition();
   }
 
+  const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   function onPositionError(err) {
-    if (err.code === 1) stopSharing('Nu ai permis accesul la locație. Activează-l din setările browserului ca să o poți distribui.', 'error');
+    if (err.code === 1) {
+      const how = IOS
+        ? 'Pe iPhone: Setări › Confidențialitate și securitate › Servicii de localizare (activat) › Safari Websites › „În timpul utilizării aplicației”. Apoi, în Safari, atinge „aA” din bara de adrese › Setări site › Locație › Permite, și încearcă din nou.'
+        : 'Activează locația pentru acest site din setările browserului și încearcă din nou.';
+      stopSharing('Accesul la locație este blocat. ' + how, 'error', true);
+    } else if (err.code === 2) {
+      shareProblem = 'Telefonul nu a putut determina locația. Verifică dacă Serviciile de localizare sunt pornite și ieși într-un loc cu semnal GPS.';
+      updateShareUI();
+    } else if (err.code === 3) {
+      shareProblem = 'Încă caut locația… dacă durează, verifică Serviciile de localizare.';
+      updateShareUI();
+    }
   }
 
   function startSharing() {
@@ -1525,6 +1548,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     sharingEntryId = myEntryId();
     if (!sharingEntryId) { showShareError('Nu am găsit înscrierea ta pe acest dispozitiv.'); return; }
     sharingSince = Date.now();
+    shareProblem = '';
     latestPos = null;
     lastSentAt = 0;
     watchId = navigator.geolocation.watchPosition(onPosition, onPositionError, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
@@ -1534,14 +1558,15 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     updateShareUI();
   }
 
-  async function stopSharing(message, type) {
+  async function stopSharing(message, type, inline) {
     const id = sharingEntryId;
+    shareProblem = inline ? message : '';
     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     clearInterval(sendTimer);
     watchId = null; sendTimer = null; latestPos = null; sharingEntryId = null;
     if (wakeLock) { try { wakeLock.release(); } catch (e) { /* already released */ } wakeLock = null; }
     updateShareUI();
-    if (message) { showStatus(message, type || 'info'); setTimeout(hideStatus, 8000); }
+    if (message && !inline) { showStatus(message, type || 'info'); setTimeout(hideStatus, 8000); }
     if (id) {
       try {
         await api(`/api/location?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'x-owner-token': getOwnerTokens()[id] || '' } });
