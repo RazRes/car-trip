@@ -3,197 +3,235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Echipaj Grand Finale</title>
+<meta name="theme-color" content="#050E2B">
+<title>Ford ST/RS — The Grand Finale 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #15171c;
-    --surface: #1e2128;
-    --border: #2c3038;
-    --text: #eceef1;
-    --text-dim: #9aa1ac;
-    --accent: #ef6b6b;
-    --green: #4ade9a;
-    --green-bg: #17301f;
-    --amber: #e5b567;
-    --amber-bg: #332510;
+    --bg: #050E2B;
+    --surface: #0B1B48;
+    --surface2: #12296A;
+    --line: #1B3470;
+    --line2: #2A4A9A;
+    --dash: #3F62B8;
+    --text: #FFFFFF;
+    --dim: #A9B9DA;
+    --mid: #D5DEF2;
+    --accent: #0A5BE6;
+    --on-accent: #FFFFFF;
+    --accent-text: #7FB0FF;
+    --accent-soft: rgba(80, 140, 255, 0.22);
+    --s1: #2F7BFF;
+    --s2: #FFFFFF;
+    --s3: #E4202E;
+    --green: #A5EA5F;
+    --green-bg: rgba(123, 214, 43, 0.16);
+    --orange: #FF9A4D;
+    --orange-bg: rgba(255, 122, 26, 0.16);
+    --danger: #FF8C8C;
+    --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 15px; line-height: 1.45;
   }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 32px 16px; }
-  .status-banner {
-    display: none; font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
+  button, input, textarea, select { font-family: inherit; }
+  button { cursor: pointer; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  a { color: inherit; text-decoration: none; }
+  input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, label:focus-within {
+    outline: 2px solid #8FB0FF; outline-offset: 2px;
   }
+  .wrap { max-width: 560px; margin: 0 auto; padding-bottom: 36px; }
+
+  /* ---------- status banner ---------- */
+  .status-banner { display: none; font-size: 14px; padding: 12px 20px; margin: 12px 20px 0; border-radius: 12px; }
   .status-banner.show { display: block; }
-  .status-banner.error { background: #3a2426; color: #ef6b6b; border: 1px solid #5a2f2f; }
-  .status-banner.info { background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); }
-  .trip-banner {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    overflow: hidden; margin-bottom: 20px;
+  .status-banner.error { background: rgba(255, 140, 140, 0.14); color: var(--danger); border: 1px solid rgba(255, 140, 140, 0.4); }
+  .status-banner.info { background: var(--accent-soft); color: var(--mid); border: 1px solid var(--line2); }
+
+  /* ---------- banner ---------- */
+  .poster-wrap { overflow: hidden; border-radius: 0 0 24px 24px; background: #0A1226; }
+  .poster { display: block; width: 100%; height: auto; }
+  .stripe { display: flex; gap: 3px; transform: skewX(-28deg); }
+  .stripe i { display: block; width: 7px; height: 16px; }
+  .stripe i:nth-child(1) { background: var(--s1); }
+  .stripe i:nth-child(2) { background: var(--s2); }
+  .stripe i:nth-child(3) { background: var(--s3); }
+  .countdown-bar { display: flex; align-items: center; gap: 12px; margin: 20px 20px 0; padding: 12px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+  .countdown-num { font-family: var(--display); font-style: italic; font-weight: 800; font-size: 46px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .countdown-label { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid); }
+
+  /* ---------- facts ---------- */
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 10px 20px 0; }
+  .fact { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 12px; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); display: block; }
+  .fact .value { display: block; margin-top: 4px; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 38px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .fact .value small { font-size: 16px; font-weight: 700; font-style: normal; color: var(--dim); }
+  .fact .value.accent { color: var(--accent-text); }
+
+  /* ---------- sections ---------- */
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin: 40px 20px 14px; }
+  .section-head h2, .card-form h2 { margin: 0; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 32px; line-height: 1.05; text-transform: uppercase; }
+  .section-head .aside { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+  .count-chip { min-width: 34px; text-align: center; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--surface2); color: var(--mid); }
+
+  .cards { margin: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-head .left { display: flex; align-items: center; gap: 10px; }
+  .icon-tile { width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); display: flex; align-items: center; justify-content: center; }
+  .card-head .label { color: var(--dim); letter-spacing: 0.14em; font-size: 12px; }
+  .card-time { font-family: var(--display); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; color: var(--mid); }
+  .card-title { margin-top: 12px; font-size: 17px; font-weight: 600; line-height: 1.35; }
+  .card-sub { margin-top: 2px; color: var(--dim); font-size: 14px; }
+  .map-links { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .map-links a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 14px; font-weight: 600; }
+  .map-links a:hover { border-color: var(--accent-text); color: var(--accent-text); }
+  .callout { display: flex; align-items: center; gap: 12px; background: var(--accent-soft); border-radius: 16px; padding: 14px 16px; font-size: 15px; font-weight: 600; }
+  .callout svg { color: var(--accent-text); flex: none; }
+
+  /* ---------- route ---------- */
+  .route { margin: 0 20px; padding: 20px 18px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+  .stop { position: relative; display: flex; gap: 16px; }
+  .stop-rail { position: relative; width: 22px; flex: none; display: flex; justify-content: center; }
+  .stop:not(:last-child) .stop-rail::before { content: ''; position: absolute; top: 14px; bottom: -4px; width: 2px; background: var(--line2); }
+  .stop-dot { position: relative; margin-top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--dash); }
+  .stop-first .stop-dot { width: 16px; height: 16px; margin-top: 1px; background: var(--accent); border-color: var(--accent); }
+  .stop-last .stop-dot { width: 18px; height: 18px; background: var(--accent); border-color: var(--accent); }
+  .stop-body { flex: 1; min-width: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-bottom: 20px; }
+  .stop-name { font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .stop-sub { font-size: 13px; color: var(--dim); }
+  .stop-tag { flex: none; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; background: var(--surface2); color: var(--mid); }
+  .stop-last .stop-tag { background: var(--accent); color: var(--on-accent); }
+
+  /* ---------- buttons ---------- */
+  .actions-top { margin: 28px 20px 0; display: flex; flex-direction: column; gap: 10px; }
+  .btn-primary, .btn-secondary {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    min-height: 54px; padding: 0 20px; border-radius: 14px; font-size: 16px; font-weight: 700; border: 0;
   }
-  .trip-banner .poster {
-    position: relative; height: 280px; overflow: hidden;
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--line); font-size: 14px; font-weight: 600; text-align: left; justify-content: flex-start; padding: 0 14px; min-height: 56px; }
+  .btn-secondary:hover { border-color: var(--accent-text); }
+  .btn-secondary svg { flex: none; }
+  .btn-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .btn-wide { justify-content: space-between; }
+  .btn-ghost { background: transparent; border: 1px solid var(--line2); color: var(--mid); justify-content: center; font-size: 15px; font-weight: 600; }
+
+  /* ---------- summary ---------- */
+  .summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 28px 20px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .stat .num { display: block; margin-top: 4px; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 56px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat .num.accent { color: var(--accent-text); }
+  .stat .num .of { font-size: 22px; color: var(--dim); }
+  .bar { margin-top: 10px; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bar-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+  .rooms-full-note { margin: 12px 20px 0; font-size: 14px; color: var(--danger); background: rgba(255, 140, 140, 0.12); border: 1px solid rgba(255, 140, 140, 0.4); border-radius: 12px; padding: 12px 14px; }
+
+  /* ---------- form ---------- */
+  .card-form { margin: 28px 20px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px 18px 22px; }
+  .card-form .intro { color: var(--dim); font-size: 14px; margin: 4px 0 18px; }
+  #addForm { display: flex; flex-direction: column; gap: 16px; }
+  .field-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+  input, textarea {
+    width: 100%; padding: 0 14px; height: 50px; border: 1px solid var(--line2); border-radius: 12px;
+    background: var(--bg); color: var(--text); font-size: 16px;
   }
-  .trip-banner .poster-bg {
-    position: absolute; inset: 0; background-image: url(trip-banner-grand-finale.png);
-    background-size: cover; background-position: center; filter: blur(18px) brightness(0.55);
-    transform: scale(1.15);
-  }
-  .trip-banner img {
-    position: relative; z-index: 1; display: block;
-    height: 100%; width: 100%; object-fit: contain;
-  }
-  .trip-banner .stats-row { display: flex; gap: 16px; align-items: flex-start; padding: 14px 16px; flex-wrap: wrap; }
-  .trip-banner .stat { font-size: 13px; flex: 1 1 0; min-width: 0; }
-  .trip-banner .stat .label { color: var(--text-dim); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
-  .trip-banner .stat .value { font-weight: 700; font-size: 15px; }
-  .trip-banner .stat-wide { flex-basis: 100%; }
-  @media (max-width: 480px) {
-    .trip-banner .stat:not(.stat-wide) { flex: 0 1 auto; }
-  }
-  .map-links { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
-  .map-links a {
-    font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px;
-    background: var(--bg); border: 1px solid var(--border); color: var(--text); text-decoration: none;
-  }
-  .map-links a:hover { border-color: var(--accent); color: var(--accent); }
-  .summary-row {
-    display: flex; gap: 16px; flex-wrap: wrap;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px 16px; margin-bottom: 20px;
-  }
-  .summary-row .stat { font-size: 13px; }
-  .summary-row .stat .label { color: var(--text-dim); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
-  .summary-row .stat .value { font-weight: 700; font-size: 20px; color: var(--accent); }
-  form {
-    display: flex; flex-direction: column; gap: 8px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px; margin-bottom: 24px;
-  }
-  .checkbox-row {
-    display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 4px 2px;
-  }
-  .checkbox-row input[type="checkbox"] { width: auto; flex-shrink: 0; }
-  .checkbox-row.disabled { opacity: 0.5; }
-  .room-full-msg { font-size: 12px; color: var(--accent); padding: 0 2px; margin-top: -2px; }
-  .rooms-full-note {
-    font-size: 12px; color: var(--accent); background: #3a2426; border: 1px solid #5a2f2f;
-    border-radius: 8px; padding: 8px 12px; margin: -12px 0 20px;
-  }
-  .room-full-msg a, .rooms-full-note a { color: var(--accent); font-weight: 700; text-decoration: underline; }
-  #roomCountRow { display: none; }
+  textarea { height: auto; padding: 12px 14px; resize: vertical; }
+  input::placeholder, textarea::placeholder { color: var(--dim); opacity: 0.8; }
+  .hint { margin-top: 6px; font-size: 13px; color: var(--dim); }
+  .field-error { font-size: 13px; color: var(--danger); margin-top: -8px; }
+  .char-count { text-align: right; font-size: 12px; color: var(--dim); margin-top: 4px; }
+  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; background: var(--bg); border: 1px solid var(--line2); border-radius: 14px; }
+  .seg button { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--mid); font-size: 14px; font-weight: 600; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .plate-field { display: flex; height: 56px; border-radius: 10px; overflow: hidden; border: 2px solid #2A2F3A; background: #F4F4EE; }
+  .plate-band { width: 38px; flex: none; background: #0B3A9E; color: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+  .plate-field input { flex: 1; min-width: 0; height: 100%; border: 0; border-radius: 0; background: transparent; color: #0C0F14; text-align: center; font-family: var(--display); font-weight: 700; font-size: 28px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .plate-field input::placeholder { color: #8A8F99; opacity: 1; }
+  .file-btn { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 0 16px; border: 1.5px dashed var(--dash); border-radius: 14px; color: var(--mid); font-size: 15px; font-weight: 600; cursor: pointer; }
+  .file-btn:hover { border-color: var(--accent-text); color: var(--accent-text); }
+  .file-name { display: block; font-size: 13px; color: var(--dim); margin-top: 6px; }
+  .room-box { background: var(--bg); border: 1px solid var(--line2); border-radius: 14px; padding: 14px 16px; }
+  .room-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .room-toggle.disabled { opacity: 0.5; cursor: not-allowed; }
+  .switch { appearance: none; -webkit-appearance: none; width: 52px; height: 30px; padding: 0; border: 0; border-radius: 999px; background: var(--line2); position: relative; cursor: inherit; flex: none; margin: 0; transition: background 0.15s; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform 0.15s; }
+  .switch:checked { background: var(--accent); }
+  .switch:checked::after { transform: translateX(22px); background: var(--on-accent); }
+  .room-full-msg { font-size: 13px; color: var(--danger); margin-top: 10px; }
+  #roomCountRow { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
   #roomCountRow.show { display: block; }
-  .field-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
-  input, select, textarea {
-    padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
-    background: var(--bg); color: var(--text); font-size: 14px; width: 100%;
-    font-family: inherit;
-  }
-  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  textarea { resize: vertical; }
-  .file-btn {
-    display: block; width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--bg); color: var(--text); font-size: 14px; font-weight: 600; text-align: center;
-    cursor: pointer; box-sizing: border-box;
-  }
-  .file-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .file-name { display: block; font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-  .char-count { font-size: 11px; color: var(--text-dim); text-align: right; margin-top: -4px; }
-  .field-error { font-size: 11px; color: var(--accent); margin-top: -4px; }
-  button {
-    padding: 10px 16px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600;
-    cursor: pointer; background: var(--accent); color: white;
-  }
-  button:hover { opacity: 0.9; }
-  button:disabled { opacity: 0.5; cursor: default; }
-  .item {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 12px; margin-bottom: 8px;
-  }
-  .avatar {
-    width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0;
-    background: var(--bg); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-dim);
-  }
+  .stepper { display: flex; align-items: center; gap: 14px; }
+  .stepper button { width: 44px; height: 44px; border: 1px solid var(--line2); border-radius: 12px; background: var(--surface); color: var(--text); font-size: 22px; line-height: 1; }
+  .stepper input { width: 64px; height: 44px; padding: 0; text-align: center; border: 0; background: transparent; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 34px; -moz-appearance: textfield; font-variant-numeric: tabular-nums; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .submit-row { display: flex; gap: 8px; }
+  #submitBtn { flex: 1; min-height: 58px; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 24px; letter-spacing: 0.04em; text-transform: uppercase; }
+  #cancelEditBtn { display: none; width: auto; min-height: 58px; }
+
+  /* ---------- crew list ---------- */
+  #list { margin: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .empty { color: var(--dim); font-size: 15px; text-align: center; padding: 28px 0; }
+  .item { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .item.cant-come { opacity: 0.6; }
+  .item-main { display: flex; gap: 14px; }
+  .avatar { width: 56px; height: 56px; flex: none; border-radius: 14px; object-fit: cover; color: #fff; display: flex; align-items: center; justify-content: center; }
   .info { flex: 1; min-width: 0; }
-  .info .name { font-weight: 700; font-size: 15px; }
-  .info .meta { color: var(--text-dim); font-size: 13px; margin-top: 1px; }
-  .info .meta .plate {
-    display: inline-block; font-family: monospace; font-weight: 700; letter-spacing: 0.03em;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-    padding: 1px 6px; margin-left: 6px; color: var(--text);
-  }
-  .info .meta .room {
-    display: inline-block; font-weight: 700; letter-spacing: 0.02em;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-    padding: 1px 6px; margin-left: 6px; color: var(--accent);
-  }
-  .info .meta .phone {
-    display: inline-block; margin-left: 6px; color: var(--accent); text-decoration: none; font-weight: 600;
-  }
-  .info .meta .phone:hover { text-decoration: underline; }
-  .info .notes { color: var(--text-dim); font-size: 12px; margin-top: 4px; font-style: italic; }
-  .status-badge {
-    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
-    text-transform: uppercase; letter-spacing: 0.03em; margin-right: 6px; vertical-align: middle;
-  }
+  .info-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .name { font-size: 17px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+  .car { font-size: 14px; color: var(--dim); overflow-wrap: anywhere; }
+  .status-badge { flex: none; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; }
   .status-badge.confirmed { background: var(--green-bg); color: var(--green); }
-  .status-badge.maybe { background: var(--amber-bg); color: var(--amber); }
-  .status-badge.cant_come { background: var(--bg); color: var(--text-dim); }
-  .item.cant-come { opacity: 0.55; }
-  .item button {
-    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
-    padding: 6px 10px; font-size: 12px; font-weight: 600; flex-shrink: 0;
-  }
-  .item .actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .item button[data-edit] { color: var(--accent); border-color: var(--accent); }
-  #cancelEditBtn {
-    display: none; background: transparent; color: var(--text-dim); border: 1px solid var(--border);
-  }
-  .empty { color: var(--text-dim); font-size: 14px; text-align: center; padding: 24px 0; }
-  .info-btn {
-    display: block; width: 100%; background: var(--surface); color: var(--text);
-    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
-    font-size: 14px; font-weight: 600; margin-bottom: 20px; text-align: center;
-  }
-  .info-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
-    z-index: 20; align-items: center; justify-content: center; padding: 16px;
-  }
+  .status-badge.maybe { background: var(--orange-bg); color: var(--orange); }
+  .status-badge.cant_come { background: var(--surface2); color: var(--dim); }
+  .chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .plate { display: inline-flex; height: 28px; border-radius: 5px; overflow: hidden; border: 1.5px solid #2A2F3A; background: #F4F4EE; }
+  .plate .plate-band { width: 15px; padding-bottom: 2px; font-size: 6px; }
+  .plate-text { padding: 0 9px; display: flex; align-items: center; font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: 0.1em; color: #0C0F14; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-size: 12px; font-weight: 700; }
+  a.chip:hover { text-decoration: underline; }
+  .notes { margin-top: 10px; font-size: 13px; font-style: italic; color: var(--dim); overflow-wrap: anywhere; }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .actions button { min-height: 40px; padding: 0 16px; border: 1px solid var(--line2); border-radius: 10px; background: transparent; color: var(--dim); font-size: 13px; font-weight: 600; }
+  .actions button:hover { color: var(--text); border-color: var(--dash); }
+  .actions button[data-edit] { border-color: var(--accent-text); color: var(--accent-text); font-weight: 700; }
+
+  .footer { margin: 44px 20px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .footer .stripe i { height: 14px; }
+  .footer span.text { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); text-align: right; }
+
+  /* ---------- dialogs ---------- */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(3, 8, 22, 0.8); z-index: 20; align-items: center; justify-content: center; padding: 16px; }
   .modal-overlay.show { display: flex; }
   .modal-box {
-    position: relative; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; width: min(560px, calc(100vw - 32px)); box-sizing: border-box; max-height: 85vh;
-    overflow-y: auto; padding: 20px 18px;
+    position: relative; background: var(--surface); border: 1px solid var(--line2); border-radius: 22px;
+    width: min(560px, calc(100vw - 32px)); max-height: 88vh; overflow-y: auto; padding: 28px 22px 22px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
   }
   .modal-close {
-    position: sticky; top: 0; float: right; margin-left: 8px;
-    background: var(--bg); color: var(--text-dim); border: 1px solid var(--border);
-    border-radius: 999px; width: 32px; height: 32px; padding: 0; font-size: 16px;
-    line-height: 1; cursor: pointer;
+    position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+    background: transparent; color: var(--dim); display: flex; align-items: center; justify-content: center;
   }
-  .modal-close:hover { color: var(--accent); border-color: var(--accent); }
-  .modal-content {
-    white-space: pre-wrap; font-size: 14px; line-height: 1.55; color: var(--text);
-    clear: both;
-  }
-  .modal-content a { color: var(--accent); }
-  .login-box { text-align: center; }
-  .login-box .lock-icon { font-size: 32px; margin-bottom: 8px; }
-  .login-box h2 { margin: 0 0 4px; font-size: 16px; }
-  .login-box p { color: var(--text-dim); font-size: 13px; margin: 0 0 16px; }
-  #loginForm, #recoverForm { background: none; border: none; padding: 0; margin: 0; }
-  #loginInput { text-align: center; font-size: 22px; letter-spacing: 6px; min-width: 0; width: 100%; }
-  #recoverEmail { text-align: center; }
-  #loginError, #recoverError { display: none; color: var(--accent); font-size: 12px; margin-top: 8px; }
-  .field-hint { font-size: 11px; color: var(--text-dim); margin-top: -4px; }
-  #loginForm button, #recoverForm button { width: 100%; margin-top: 12px; }
+  .modal-close:hover { color: var(--text); }
+  .modal-content { white-space: pre-wrap; font-size: 15px; line-height: 1.6; padding-top: 24px; overflow-wrap: anywhere; }
+  .modal-content a { color: var(--accent-text); text-decoration: underline; }
+  .dialog { text-align: center; }
+  .dialog-icon { width: 60px; height: 60px; margin: 0 auto 16px; border-radius: 18px; background: var(--accent-soft); color: var(--accent-text); display: flex; align-items: center; justify-content: center; }
+  .dialog h2 { margin: 0; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 36px; line-height: 1; text-transform: uppercase; }
+  .dialog p { margin: 12px 0 20px; color: var(--dim); font-size: 15px; }
+  .dialog form { display: flex; flex-direction: column; }
+  .dialog-actions { display: flex; flex-direction: column; gap: 10px; }
+  #loginInput { text-align: center; font-size: 24px; letter-spacing: 6px; height: 54px; }
+  #recoverEmail { text-align: center; height: 54px; }
+  #loginError, #recoverError { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; text-align: left; }
+  .dialog form .btn-primary { margin-top: 12px; }
   @keyframes shake {
     10%, 90% { transform: translateX(-2px); }
     20%, 80% { transform: translateX(4px); }
@@ -201,140 +239,245 @@
     40%, 60% { transform: translateX(8px); }
   }
   .shake { animation: shake 0.5s; }
-  .welcome-actions { display: flex; flex-direction: column; gap: 8px; }
-  .welcome-actions button { width: 100%; }
-  .welcome-actions .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .welcome-actions .btn-secondary:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
 </style>
 </head>
 <body>
-<div class="modal-overlay" id="loginOverlay">
-  <div class="modal-box login-box">
-    <button type="button" class="modal-close" id="loginClose" aria-label="Închide">✕</button>
-    <div class="lock-icon">🔒</div>
-    <h2 id="loginTitle">Vezi numerele de telefon</h2>
-    <p id="loginSubtitle">Introdu codul primit în grup pentru a vedea numerele de telefon.</p>
-    <form id="loginForm">
-      <input id="loginInput" type="text" autocomplete="off" autocapitalize="characters" placeholder="••••••" maxlength="12">
-      <div id="loginError">Cod greșit. Încearcă din nou.</div>
-      <button type="submit">Intră</button>
-    </form>
-  </div>
-</div>
 
 <div class="modal-overlay" id="welcomeOverlay">
-  <div class="modal-box login-box">
-    <div class="lock-icon">👋</div>
-    <h2>Ești deja înscris?</h2>
-    <p>Dacă te-ai înscris deja (de pe alt telefon sau computer), îți recuperezi înscrierea cu emailul tău. Altfel, completează formularul ca să te înscrii.</p>
-    <div class="welcome-actions">
-      <button type="button" id="welcomeYes">✉️ Da, m-am înscris deja</button>
-      <button type="button" id="welcomeNo" class="btn-secondary">Nu, mă înscriu acum</button>
+  <div class="modal-box dialog" role="dialog" aria-labelledby="welcomeTitle">
+    <div class="dialog-icon" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v-3l2-5a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 7l2 5v3M3 15h18M3 15v2.5M21 15v2.5"/><circle cx="7.5" cy="15" r="1.6"/><circle cx="16.5" cy="15" r="1.6"/></svg>
+    </div>
+    <h2 id="welcomeTitle">Ești deja înscris?</h2>
+    <p>Dacă te-ai înscris deja, de pe alt telefon sau computer, îți recuperezi înscrierea cu emailul tău. Altfel, completează formularul.</p>
+    <div class="dialog-actions">
+      <button type="button" class="btn-primary" id="welcomeYes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        Da, m-am înscris deja
+      </button>
+      <button type="button" class="btn-secondary btn-ghost" id="welcomeNo">Nu, mă înscriu acum</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="recoverOverlay">
-  <div class="modal-box login-box">
-    <button type="button" class="modal-close" id="recoverClose" aria-label="Închide">✕</button>
-    <div class="lock-icon">✉️</div>
-    <h2>Recuperează-ți înscrierea</h2>
-    <p id="recoverText">Introdu emailul cu care te-ai înscris ca să poți edita înscrierea și de pe acest dispozitiv.</p>
+  <div class="modal-box dialog" role="dialog" aria-labelledby="recoverTitle">
+    <button type="button" class="modal-close" id="recoverClose" aria-label="Închide">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="dialog-icon" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+    </div>
+    <h2 id="recoverTitle">Recuperează-ți înscrierea</h2>
+    <p>Introdu emailul cu care te-ai înscris ca să poți edita înscrierea și de pe acest dispozitiv.</p>
     <form id="recoverForm">
+      <label class="field-label" for="recoverEmail" style="text-align:left">Email</label>
       <input id="recoverEmail" type="email" inputmode="email" autocomplete="email" placeholder="email@exemplu.ro">
       <div id="recoverError"></div>
-      <button type="submit" id="recoverSubmit">Recuperează</button>
+      <button type="submit" class="btn-primary" id="recoverSubmit">Recuperează</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="loginOverlay">
+  <div class="modal-box dialog" role="dialog" aria-labelledby="loginTitle">
+    <button type="button" class="modal-close" id="loginClose" aria-label="Închide">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="dialog-icon" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    </div>
+    <h2 id="loginTitle">Vezi numerele de telefon</h2>
+    <p id="loginSubtitle">Introdu codul primit în grup pentru a vedea numerele de telefon.</p>
+    <form id="loginForm">
+      <input id="loginInput" type="text" autocomplete="off" autocapitalize="characters" placeholder="••••••" maxlength="12" aria-label="Cod">
+      <div id="loginError">Cod greșit. Încearcă din nou.</div>
+      <button type="submit" class="btn-primary">Intră</button>
     </form>
   </div>
 </div>
 
 <div class="wrap">
+  <div class="poster-wrap">
+    <img class="poster" src="grand-finale-poster.jpg" width="1024" height="1098" alt="Afiș The Grand Finale 2026, Ford ST/RS România: 05 decembrie 2026, întâlnire la 09:00 pe A3 București–Ploiești, traseu spectaculos printre munți">
+  </div>
+
   <div id="statusBanner" class="status-banner"></div>
 
-  <div class="trip-banner">
-    <div class="poster">
-      <div class="poster-bg"></div>
-      <img src="trip-banner-grand-finale.png" alt="Afiș eveniment Ford ST/RS România — The Grand Finale 2026">
+  <div class="countdown-bar">
+    <div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
+    <span class="countdown-num" id="countdownValue">—</span>
+    <span class="countdown-label" id="countdownLabel">zile rămase</span>
+  </div>
+
+  <div class="facts">
+    <div class="fact"><span class="label">Întâlnire</span><span class="value">09:00</span></div>
+    <div class="fact"><span class="label">Plecare</span><span class="value accent">10:00</span></div>
+    <div class="fact"><span class="label">Camere</span><span class="value"><span class="rooms-total">14</span></span></div>
+  </div>
+
+  <div class="section-head"><h2>Unde ne vedem</h2></div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="left">
+          <span class="icon-tile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></span>
+          <span class="label">Punct de întâlnire</span>
+        </div>
+        <span class="card-time">09:00</span>
+      </div>
+      <div class="card-title">Primul spațiu de servicii de pe A3 București–Ploiești</div>
+      <div class="card-sub">Pe sensul de mers către Ploiești</div>
+      <div class="map-links">
+        <a href="https://maps.app.goo.gl/9FPm1t3haeKGkuzT9?g_st=ic" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Google Maps</a>
+        <a href="https://waze.com/ul/hsxft7z1e7" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"/></svg>Waze</a>
+      </div>
     </div>
-    <div class="stats-row">
-      <div class="stat"><span class="label">Perioadă</span><span class="value">5 decembrie</span></div>
-      <div class="stat"><span class="label">Rămas</span><span class="value" id="countdownValue">—</span></div>
-      <div class="stat"><span class="label">Direcție</span><span class="value">Moșia Zeletin</span></div>
-      <div class="stat"><span class="label">Ora de plecare</span><span class="value">10:00</span></div>
-      <div class="stat"><span class="label">Ora de întâlnire</span><span class="value">09:00</span></div>
-      <div class="stat stat-wide">
-        <span class="label">Loc de întâlnire</span>
-        <span class="value" style="display:block; font-size:14px;">Primul spațiu de servicii de pe A3 București–Ploiești, pe sensul spre Ploiești</span>
-        <div class="map-links">
-          <a href="https://maps.app.goo.gl/9FPm1t3haeKGkuzT9?g_st=ic" target="_blank" rel="noopener">📍 Google Maps ↗</a>
-          <a href="https://waze.com/ul/hsxft7z1e7" target="_blank" rel="noopener">🚗 Waze ↗</a>
+    <div class="card">
+      <div class="card-head">
+        <div class="left">
+          <span class="icon-tile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19V6M3 15h18v4M21 15v-2.5A2.5 2.5 0 0 0 18.5 10H11v5"/><circle cx="7" cy="11.5" r="1.7"/></svg></span>
+          <span class="label">Cazare</span>
         </div>
       </div>
-      <div class="stat stat-wide">
-        <span class="label">Cazare</span>
-        <span class="value" style="display:block; font-size:14px;">Moșia Zeletin (după serpentinele Cheia)</span>
-        <div class="map-links">
-          <a href="https://maps.app.goo.gl/i124v3rijtKUzTXJ9?g_st=ic" target="_blank" rel="noopener">📍 Google Maps ↗</a>
-          <a href="https://waze.com/ul/hu849dshxb" target="_blank" rel="noopener">🚗 Waze ↗</a>
-        </div>
+      <div class="card-title">Moșia Zeletin</div>
+      <div class="card-sub">Locuri limitate: <span class="rooms-total">14</span> camere</div>
+      <div class="map-links">
+        <a href="https://maps.app.goo.gl/i124v3rijtKUzTXJ9?g_st=ic" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Google Maps</a>
+        <a href="https://waze.com/ul/hu849dshxb" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"/></svg>Waze</a>
       </div>
+    </div>
+    <div class="callout">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h14M8 7h4M15 10h2a2 2 0 0 1 2 2v4.5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg>
+      Vino cu mașina curată și rezervorul plin.
     </div>
   </div>
 
-  <button type="button" class="info-btn" id="tripInfoBtn">📋 Detalii complete despre traseu</button>
-  <button type="button" class="info-btn" id="showPhonesBtn">📞 Vezi numerele de telefon</button>
-  <button type="button" class="info-btn" id="recoverOpenBtn">✉️ M-am înscris deja — recuperează-mi înscrierea</button>
-
-  <div class="summary-row">
-    <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
-    <div class="stat"><span class="label">Camere necesare</span><span class="value" id="summaryRooms">0</span></div>
+  <div class="section-head"><h2>Traseul</h2><span class="aside">7 opriri</span></div>
+  <div class="route">
+    <div class="stop stop-first"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">București</div><div class="stop-sub">Punct de întâlnire, A3 spre Ploiești</div></div><span class="stop-tag">Start</span></div></div>
+    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Sărata Monteoru</div></div></div></div>
+    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Măgura</div></div></div></div>
+    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Barajul Siriu</div><div class="stop-sub">Dacă timpul permite</div></div><span class="stop-tag">Foto</span></div></div>
+    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Brașov</div><div class="stop-sub">La intrare în oraș</div></div><span class="stop-tag">Alimentare</span></div></div>
+    <div class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Serpentinele Cheia</div></div></div></div>
+    <div class="stop stop-last"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Moșia Zeletin</div><div class="stop-sub">Destinația finală</div></div><span class="stop-tag">Final</span></div></div>
   </div>
-  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">🔴 Cazare epuizată — toate cele 14 camere de la Moșia Zeletin sunt deja ocupate. Vă puteți căuta alternative de cazare în apropiere.</div>
 
-  <form id="addForm">
-    <input id="nameInput" placeholder="Nume">
-    <div>
-      <label class="field-label">Participare</label>
-      <select id="rsvpInput">
-        <option value="confirmed">✅ Confirmat</option>
-        <option value="maybe">❔ Poate</option>
-        <option value="cant_come">❌ Nu pot veni</option>
-      </select>
+  <div class="actions-top">
+    <button type="button" class="btn-primary btn-wide" id="tripInfoBtn">
+      Detalii complete despre traseu
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <div class="btn-row">
+      <button type="button" class="btn-secondary" id="showPhonesBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+        Vezi numerele de telefon
+      </button>
+      <button type="button" class="btn-secondary" id="recoverOpenBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        M-am înscris deja
+      </button>
     </div>
-    <input id="carInput" placeholder="Mașină (ex. VW Golf GTI)">
-    <input id="plateInput" placeholder="Număr de înmatriculare" style="text-transform: uppercase;">
-    <input id="phoneInput" type="tel" inputmode="tel" placeholder="Număr de telefon (ex. 07xx xxx xxx)">
-    <input id="emailInput" type="email" inputmode="email" autocomplete="email" placeholder="Email (ca să-ți recuperezi înscrierea)">
-    <div class="field-hint">Nu este afișat public. Îl folosești ca să-ți editezi înscrierea de pe alt telefon sau computer.</div>
-    <div class="field-error" id="phoneError" style="display:none;">Număr invalid — folosește un format românesc, ex. 07xx xxx xxx sau +407xx xxx xxx.</div>
-    <div>
-      <label class="file-btn" for="photoInput">📷 Adaugă poza mașinii</label>
-      <input id="photoInput" type="file" accept="image/*" hidden>
-      <span class="file-name" id="photoFileName"></span>
-    </div>
-    <label class="checkbox-row" id="roomCheckRow">
-      <input type="checkbox" id="roomCheck">
-      <span id="roomCheckLabel">Vrei cameră la Moșia Zeletin?</span>
-    </label>
-    <div id="roomFullMsg" class="room-full-msg" style="display:none;">❌ Nu mai sunt camere disponibile — toate cele 14 camere sunt ocupate. Vă puteți căuta alternative de cazare în apropiere.</div>
-    <div id="roomCountRow">
-      <label class="field-label">Total persoane care împart camera (inclusiv tu)</label>
-      <input id="roomCountInput" type="number" min="1" value="2">
-    </div>
-    <textarea id="notesInput" rows="2" maxlength="160" placeholder="Notițe (opțional) — ex. aduc portbagaj, plec la ora 6"></textarea>
-    <div class="char-count" id="notesCount">0/160</div>
-    <div class="row" style="display:flex; gap:8px;">
-      <button type="submit" id="submitBtn" style="flex:1;">Adaugă mașina</button>
-      <button type="button" id="cancelEditBtn">Anulează</button>
-    </div>
-  </form>
+  </div>
 
+  <div class="summary">
+    <div class="stat"><span class="label">Mașini confirmate</span><span class="num accent" id="summaryPeople">0</span></div>
+    <div class="stat">
+      <span class="label">Camere necesare</span>
+      <span class="num"><span id="summaryRooms">0</span><span class="of"> / <span class="rooms-total">14</span></span></span>
+      <div class="bar"><div class="bar-fill" id="roomsBar"></div></div>
+    </div>
+  </div>
+  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">Cazare epuizată — toate cele <span class="rooms-total">14</span> camere de la Moșia Zeletin sunt deja ocupate. Vă puteți căuta alternative de cazare în apropiere.</div>
+
+  <div class="card-form">
+    <h2>Înscrie-te</h2>
+    <div class="intro">Completează datele și apari în echipaj.</div>
+    <form id="addForm">
+      <div>
+        <label class="field-label" for="nameInput">Nume</label>
+        <input id="nameInput" placeholder="Numele tău" autocomplete="name">
+      </div>
+      <div>
+        <div class="field-label" id="rsvpLabel">Participare</div>
+        <input type="hidden" id="rsvpInput" value="confirmed">
+        <div class="seg" id="rsvpGroup" role="group" aria-labelledby="rsvpLabel">
+          <button type="button" data-rsvp="confirmed" aria-pressed="true">Confirmat</button>
+          <button type="button" data-rsvp="maybe" aria-pressed="false">Poate</button>
+          <button type="button" data-rsvp="cant_come" aria-pressed="false">Nu pot veni</button>
+        </div>
+      </div>
+      <div>
+        <label class="field-label" for="carInput">Mașină</label>
+        <input id="carInput" placeholder="ex. Ford Focus ST">
+      </div>
+      <div>
+        <label class="field-label" for="plateInput">Număr de înmatriculare</label>
+        <div class="plate-field">
+          <span class="plate-band" aria-hidden="true">RO</span>
+          <input id="plateInput" placeholder="B 123 ABC" autocapitalize="characters" autocomplete="off">
+        </div>
+      </div>
+      <div>
+        <label class="field-label" for="phoneInput">Telefon</label>
+        <input id="phoneInput" type="tel" inputmode="tel" autocomplete="tel" placeholder="07xx xxx xxx">
+      </div>
+      <div class="field-error" id="phoneError" style="display:none;">Număr invalid — folosește un format românesc, ex. 07xx xxx xxx sau +407xx xxx xxx.</div>
+      <div>
+        <label class="field-label" for="emailInput">Email</label>
+        <input id="emailInput" type="email" inputmode="email" autocomplete="email" placeholder="email@exemplu.ro">
+        <div class="hint">Nu este afișat public. Îl folosești ca să-ți editezi înscrierea de pe alt telefon sau computer.</div>
+      </div>
+      <div>
+        <label class="file-btn" for="photoInput">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          Adaugă poza mașinii
+        </label>
+        <input id="photoInput" type="file" accept="image/*" hidden>
+        <span class="file-name" id="photoFileName"></span>
+      </div>
+      <div class="room-box">
+        <label class="room-toggle" id="roomCheckRow">
+          <span>Vrei cameră la Moșia Zeletin?</span>
+          <input type="checkbox" class="switch" id="roomCheck">
+        </label>
+        <div id="roomFullMsg" class="room-full-msg" style="display:none;">Nu mai sunt camere disponibile — toate cele <span class="rooms-total">14</span> camere sunt ocupate. Vă puteți căuta alternative de cazare în apropiere.</div>
+        <div id="roomCountRow">
+          <label class="field-label" for="roomCountInput" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:500">Total persoane care împart camera (inclusiv tu)</label>
+          <div class="stepper">
+            <button type="button" id="roomMinus" aria-label="Mai puține persoane">−</button>
+            <input id="roomCountInput" type="number" min="1" max="20" value="2">
+            <button type="button" id="roomPlus" aria-label="Mai multe persoane">+</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="field-label" for="notesInput">Notițe (opțional)</label>
+        <textarea id="notesInput" rows="3" maxlength="160" placeholder="ex. aduc portbagaj, plec la ora 6"></textarea>
+        <div class="char-count" id="notesCount">0/160</div>
+      </div>
+      <div class="submit-row">
+        <button type="submit" class="btn-primary" id="submitBtn">Adaugă mașina</button>
+        <button type="button" class="btn-secondary btn-ghost" id="cancelEditBtn">Anulează</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-head"><h2>Echipajul</h2><span class="count-chip" id="crewCount">0</span></div>
   <div id="list"></div>
+
+  <div class="footer">
+    <div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
+    <span class="text">Ford ST/RS România · Grand Finale 2026</span>
+  </div>
 </div>
 
 <div class="modal-overlay" id="tripInfoOverlay">
-  <div class="modal-box">
-    <button type="button" class="modal-close" id="tripInfoClose" aria-label="Închide">✕</button>
+  <div class="modal-box" role="dialog" aria-label="Detalii complete despre traseu">
+    <button type="button" class="modal-close" id="tripInfoClose" aria-label="Închide">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
     <div class="modal-content" id="tripInfoContent"></div>
   </div>
 </div>
@@ -447,6 +590,22 @@
   const NOTES_MAX = 160;
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const RO_PHONE_RE = /^(?:\+40|0040|0)(7\d{8}|[23]\d{8})$/;
+
+  const rsvpButtons = document.querySelectorAll('#rsvpGroup button[data-rsvp]');
+
+  function setRsvp(value) {
+    rsvpInput.value = value;
+    rsvpButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.rsvp === value)));
+  }
+
+  rsvpButtons.forEach(b => b.addEventListener('click', () => setRsvp(b.dataset.rsvp)));
+
+  document.getElementById('roomMinus').addEventListener('click', () => {
+    roomCountInput.value = Math.max(1, (Number(roomCountInput.value) || 2) - 1);
+  });
+  document.getElementById('roomPlus').addEventListener('click', () => {
+    roomCountInput.value = Math.min(20, (Number(roomCountInput.value) || 2) + 1);
+  });
 
   function normalizePhone(value) {
     return value.replace(/[\s.\-()]/g, '');
@@ -739,13 +898,29 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     render();
   }
 
-  const STATUS_LABELS = { confirmed: '✅ Confirmat', maybe: '❔ Poate', cant_come: "❌ Nu vine" };
+  const STATUS_LABELS = { confirmed: 'Confirmat', maybe: 'Poate', cant_come: 'Nu vine' };
+
+  const CAR_SVG = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15v-3l2-5a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 7l2 5v3M3 15h18M3 15v2.5M21 15v2.5"/><circle cx="7.5" cy="15" r="1.6"/><circle cx="16.5" cy="15" r="1.6"/></svg>';
+  const BED_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19V6M3 15h18v4M21 15v-2.5A2.5 2.5 0 0 0 18.5 10H11v5"/><circle cx="7" cy="11.5" r="1.7"/></svg>';
+  const PHONE_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
+
+  // Avatar tint follows the car: RS blue, Fiesta orange, other ST green.
+  function carTone(car) {
+    const c = (car || '').toLowerCase();
+    if (/\brs\b/.test(c)) return ['#2760F0', '#13357F'];
+    if (/fiesta/.test(c)) return ['#FF7A1A', '#A8480A'];
+    if (/\bst\b/.test(c)) return ['#7BD62B', '#3C7A12'];
+    return ['#6B7A99', '#34405C'];
+  }
 
   function render() {
     const drivers = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && !p.riding_with);
     const rooms = crew.filter(p => (p.rsvp_status || 'confirmed') === 'confirmed' && p.room_people);
     document.getElementById('summaryPeople').textContent = drivers.length;
     document.getElementById('summaryRooms').textContent = rooms.length;
+    document.getElementById('crewCount').textContent = crew.length;
+    document.querySelectorAll('.rooms-total').forEach(el => { el.textContent = totalRooms; });
+    document.getElementById('roomsBar').style.width = Math.min(100, (rooms.length / totalRooms) * 100) + '%';
     applyRoomAvailability();
 
     if (crew.length === 0) {
@@ -755,19 +930,36 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     listEl.innerHTML = crew.map(person => {
       const status = person.rsvp_status || 'confirmed';
       const mine = person.mine;
+      const tone = carTone(person.car);
+      const avatar = person.has_photo
+        ? `<img class="avatar" src="/api/photo?id=${encodeURIComponent(person.id)}&v=${person.ver}" alt="" loading="lazy">`
+        : `<div class="avatar" aria-hidden="true" style="background:linear-gradient(145deg, ${tone[0]}, ${tone[1]})">${CAR_SVG}</div>`;
+      const plate = person.plate
+        ? `<span class="plate"><span class="plate-band" aria-hidden="true">RO</span><span class="plate-text">${escapeHtml(person.plate)}</span></span>`
+        : '';
+      const room = person.room_people ? `<span class="chip">${BED_SVG}Cameră pentru ${person.room_people}</span>` : '';
+      const phone = person.phone && showPhones
+        ? `<a class="chip" href="tel:${encodeURIComponent(person.phone.replace(/[^0-9+]/g, ''))}">${PHONE_SVG}${escapeHtml(person.phone)}</a>`
+        : '';
       return `
       <div class="item ${status === 'cant_come' ? 'cant-come' : ''}">
-        ${person.has_photo
-          ? `<img class="avatar" src="/api/photo?id=${encodeURIComponent(person.id)}&v=${person.ver}" alt="" loading="lazy">`
-          : `<div class="avatar">🙂</div>`}
-        <div class="info">
-          <div class="name"><span class="status-badge ${status}">${STATUS_LABELS[status]}</span>${escapeHtml(person.name)}</div>
-          <div class="meta">${person.riding_with ? `🚗 Merge cu ${escapeHtml(person.riding_with)}` : (escapeHtml(person.car) || 'Fără mașină')}${person.plate ? `<span class="plate">${escapeHtml(person.plate)}</span>` : ''}${person.room_people ? `<span class="room">🏨 Cameră pentru ${person.room_people}</span>` : ''}${person.phone && showPhones ? `<a class="phone" href="tel:${encodeURIComponent(person.phone.replace(/[^0-9+]/g, ''))}">📞 ${escapeHtml(person.phone)}</a>` : ''}</div>
-          ${person.notes ? `<div class="notes">${escapeHtml(person.notes)}</div>` : ''}
+        <div class="item-main">
+          ${avatar}
+          <div class="info">
+            <div class="info-top">
+              <div>
+                <div class="name">${escapeHtml(person.name)}</div>
+                <div class="car">${escapeHtml(person.car) || 'Fără mașină'}</div>
+              </div>
+              <span class="status-badge ${status}">${STATUS_LABELS[status]}</span>
+            </div>
+            <div class="chips">${plate}${room}${phone}</div>
+            ${person.notes ? `<div class="notes">${escapeHtml(person.notes)}</div>` : ''}
+          </div>
         </div>
         <div class="actions">
-          ${mine ? `<button data-edit="${person.id}">Editează</button>` : ''}
-          <button data-${mine ? 'remove' : 'remove-locked'}="${person.id}">Șterge</button>
+          ${mine ? `<button type="button" data-edit="${person.id}">Editează</button>` : ''}
+          <button type="button" data-${mine ? 'remove' : 'remove-locked'}="${person.id}">Șterge</button>
         </div>
       </div>
     `;
@@ -872,7 +1064,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     emailInput.value = person.email || '';
     phoneError.style.display = 'none';
     updateSubmitState();
-    rsvpInput.value = person.rsvp_status || 'confirmed';
+    setRsvp(person.rsvp_status || 'confirmed');
     notesInput.value = person.notes || '';
     notesCount.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
     photoInput.value = '';
@@ -900,7 +1092,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     emailInput.value = '';
     phoneError.style.display = 'none';
     updateSubmitState();
-    rsvpInput.value = 'confirmed';
+    setRsvp('confirmed');
     notesInput.value = '';
     notesCount.textContent = `0/${NOTES_MAX}`;
     photoInput.value = '';
@@ -1000,12 +1192,13 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const days = Math.round((tripDate - today) / 86400000);
-    let text;
-    if (days > 1) text = `${days} zile`;
-    else if (days === 1) text = 'Mâine!';
-    else if (days === 0) text = 'Astăzi!';
-    else text = 'Drum bun! 🏔️';
-    document.getElementById('countdownValue').textContent = text;
+    let value, label;
+    if (days > 1) { value = days; label = 'zile rămase'; }
+    else if (days === 1) { value = 'Mâine!'; label = ''; }
+    else if (days === 0) { value = 'Astăzi!'; label = ''; }
+    else { value = 'Drum bun!'; label = ''; }
+    document.getElementById('countdownValue').textContent = value;
+    document.getElementById('countdownLabel').textContent = label;
   }
   const tripInfoBtn = document.getElementById('tripInfoBtn');
   const tripInfoOverlay = document.getElementById('tripInfoOverlay');
