@@ -201,6 +201,10 @@
     40%, 60% { transform: translateX(8px); }
   }
   .shake { animation: shake 0.5s; }
+  .welcome-actions { display: flex; flex-direction: column; gap: 8px; }
+  .welcome-actions button { width: 100%; }
+  .welcome-actions .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .welcome-actions .btn-secondary:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
 </style>
 </head>
 <body>
@@ -215,6 +219,18 @@
       <div id="loginError">Cod greșit. Încearcă din nou.</div>
       <button type="submit">Intră</button>
     </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="welcomeOverlay">
+  <div class="modal-box login-box">
+    <div class="lock-icon">👋</div>
+    <h2>Ești deja înscris?</h2>
+    <p>Dacă te-ai înscris deja (de pe alt telefon sau computer), îți recuperezi înscrierea cu emailul tău. Altfel, completează formularul ca să te înscrii.</p>
+    <div class="welcome-actions">
+      <button type="button" id="welcomeYes">✉️ Da, m-am înscris deja</button>
+      <button type="button" id="welcomeNo" class="btn-secondary">Nu, mă înscriu acum</button>
+    </div>
   </div>
 </div>
 
@@ -947,6 +963,38 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     }
   });
 
+  // First visit on a device with no entry of its own: ask whether they're already registered.
+  const WELCOME_KEY = 'trip-crew-welcome-seen';
+  const welcomeOverlay = document.getElementById('welcomeOverlay');
+
+  function closeWelcome() {
+    welcomeOverlay.classList.remove('show');
+    try { localStorage.setItem(WELCOME_KEY, '1'); } catch (e) { /* storage unavailable */ }
+  }
+
+  document.getElementById('welcomeYes').addEventListener('click', () => {
+    closeWelcome();
+    openRecover();
+  });
+  document.getElementById('welcomeNo').addEventListener('click', () => {
+    closeWelcome();
+    nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    nameInput.focus({ preventScroll: true });
+  });
+  welcomeOverlay.addEventListener('click', (e) => {
+    if (e.target === welcomeOverlay) closeWelcome();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && welcomeOverlay.classList.contains('show')) closeWelcome();
+  });
+
+  function maybeShowWelcome() {
+    let seen = false;
+    try { seen = !!localStorage.getItem(WELCOME_KEY); } catch (e) { /* storage unavailable */ }
+    if (seen || Object.keys(getOwnerTokens()).length > 0) return;
+    welcomeOverlay.classList.add('show');
+  }
+
   function updateCountdown() {
     const tripDate = new Date(2026, 11, 5);
     const today = new Date();
@@ -985,6 +1033,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   });
 
   updateCountdown();
+  maybeShowWelcome();
   updateSubmitState();
   applyRoomAvailability();
 
