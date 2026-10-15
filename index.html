@@ -188,10 +188,14 @@
   .login-box .lock-icon { font-size: 32px; margin-bottom: 8px; }
   .login-box h2 { margin: 0 0 4px; font-size: 16px; }
   .login-box p { color: var(--text-dim); font-size: 13px; margin: 0 0 16px; }
-  #loginForm { background: none; border: none; padding: 0; margin: 0; }
-  #loginInput { text-align: center; font-size: 22px; letter-spacing: 6px; min-width: 0; width: 100%; }
-  #loginError { display: none; color: var(--accent); font-size: 12px; margin-top: 8px; }
-  #loginForm button { width: 100%; margin-top: 12px; }
+  #loginForm, #recoverForm { background: none; border: none; padding: 0; margin: 0; }
+  #loginInput, #recoverCode { text-align: center; font-size: 22px; letter-spacing: 6px; min-width: 0; width: 100%; }
+  #recoverEmail { text-align: center; }
+  #recoverCode { display: none; margin-top: 8px; }
+  #loginError, #recoverError { display: none; color: var(--accent); font-size: 12px; margin-top: 8px; }
+  #recoverError.ok { color: var(--green); }
+  .field-hint { font-size: 11px; color: var(--text-dim); margin-top: -4px; }
+  #loginForm button, #recoverForm button { width: 100%; margin-top: 12px; }
   @keyframes shake {
     10%, 90% { transform: translateX(-2px); }
     20%, 80% { transform: translateX(4px); }
@@ -212,6 +216,21 @@
       <input id="loginInput" type="text" autocomplete="off" autocapitalize="characters" placeholder="••••••" maxlength="12">
       <div id="loginError">Cod greșit. Încearcă din nou.</div>
       <button type="submit">Intră</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="recoverOverlay">
+  <div class="modal-box login-box">
+    <button type="button" class="modal-close" id="recoverClose" aria-label="Închide">✕</button>
+    <div class="lock-icon">✉️</div>
+    <h2>Recuperează-ți înscrierea</h2>
+    <p id="recoverText">Introdu emailul cu care te-ai înscris. Îți trimitem un cod de 6 cifre ca să poți edita înscrierea și de pe acest dispozitiv.</p>
+    <form id="recoverForm">
+      <input id="recoverEmail" type="email" inputmode="email" autocomplete="email" placeholder="email@exemplu.ro">
+      <input id="recoverCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+      <div id="recoverError"></div>
+      <button type="submit" id="recoverSubmit">Trimite codul</button>
     </form>
   </div>
 </div>
@@ -251,6 +270,7 @@
 
   <button type="button" class="info-btn" id="tripInfoBtn">📋 Detalii complete despre traseu</button>
   <button type="button" class="info-btn" id="showPhonesBtn">📞 Vezi numerele de telefon</button>
+  <button type="button" class="info-btn" id="recoverOpenBtn">✉️ M-am înscris deja — recuperează-mi înscrierea</button>
 
   <div class="summary-row">
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
@@ -271,6 +291,8 @@
     <input id="carInput" placeholder="Mașină (ex. VW Golf GTI)">
     <input id="plateInput" placeholder="Număr de înmatriculare" style="text-transform: uppercase;">
     <input id="phoneInput" type="tel" inputmode="tel" placeholder="Număr de telefon (ex. 07xx xxx xxx)">
+    <input id="emailInput" type="email" inputmode="email" autocomplete="email" placeholder="Email (ca să-ți recuperezi înscrierea)">
+    <div class="field-hint">Nu este afișat public. Îl folosești ca să-ți editezi înscrierea de pe alt telefon sau computer.</div>
     <div class="field-error" id="phoneError" style="display:none;">Număr invalid — folosește un format românesc, ex. 07xx xxx xxx sau +407xx xxx xxx.</div>
     <div>
       <label class="file-btn" for="photoInput">📷 Adaugă poza mașinii</label>
@@ -393,6 +415,7 @@
   const plateInput = document.getElementById('plateInput');
   const phoneInput = document.getElementById('phoneInput');
   const phoneError = document.getElementById('phoneError');
+  const emailInput = document.getElementById('emailInput');
   const rsvpInput = document.getElementById('rsvpInput');
   const notesInput = document.getElementById('notesInput');
   const photoInput = document.getElementById('photoInput');
@@ -409,6 +432,7 @@
   const statusBanner = document.getElementById('statusBanner');
   const notesCount = document.getElementById('notesCount');
   const NOTES_MAX = 160;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const RO_PHONE_RE = /^(?:\+40|0040|0)(7\d{8}|[23]\d{8})$/;
 
   function normalizePhone(value) {
@@ -431,12 +455,14 @@
     const plateOk = !!plateInput.value.trim();
     const phoneValue = phoneInput.value.trim();
     const phoneOk = !!phoneValue && isValidRoPhone(phoneValue);
-    submitBtn.disabled = !(nameOk && plateOk && phoneOk);
+    const emailOk = EMAIL_RE.test(emailInput.value.trim());
+    submitBtn.disabled = !(nameOk && plateOk && phoneOk && emailOk);
   }
 
   phoneInput.addEventListener('input', () => { validatePhoneField(); updateSubmitState(); });
   phoneInput.addEventListener('blur', validatePhoneField);
   nameInput.addEventListener('input', updateSubmitState);
+  emailInput.addEventListener('input', updateSubmitState);
   plateInput.addEventListener('input', updateSubmitState);
 
   roomCheck.addEventListener('change', () => {
@@ -782,6 +808,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
       car: carInput.value.trim(),
       plate: plateInput.value.trim().toUpperCase(),
       phone: phoneValue ? normalizePhone(phoneValue) : null,
+      email: emailInput.value.trim(),
       rsvp_status: rsvpInput.value,
       notes: notesInput.value.trim() || null,
       room_people: roomCheck.checked ? (Number(roomCountInput.value) || 1) : null
@@ -829,6 +856,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     carInput.value = person.car || '';
     plateInput.value = person.plate || '';
     phoneInput.value = person.phone || '';
+    emailInput.value = person.email || '';
     phoneError.style.display = 'none';
     updateSubmitState();
     rsvpInput.value = person.rsvp_status || 'confirmed';
@@ -856,6 +884,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     carInput.value = '';
     plateInput.value = '';
     phoneInput.value = '';
+    emailInput.value = '';
     phoneError.style.display = 'none';
     updateSubmitState();
     rsvpInput.value = 'confirmed';
@@ -870,6 +899,76 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     submitBtn.textContent = 'Adaugă mașina';
     cancelEditBtn.style.display = 'none';
   }
+
+  const recoverOverlay = document.getElementById('recoverOverlay');
+  const recoverForm = document.getElementById('recoverForm');
+  const recoverEmail = document.getElementById('recoverEmail');
+  const recoverCode = document.getElementById('recoverCode');
+  const recoverError = document.getElementById('recoverError');
+  const recoverText = document.getElementById('recoverText');
+  const recoverSubmit = document.getElementById('recoverSubmit');
+  let recoverStep = 'email';
+
+  function showRecoverMessage(message, ok) {
+    recoverError.textContent = message;
+    recoverError.classList.toggle('ok', !!ok);
+    recoverError.style.display = message ? 'block' : 'none';
+  }
+
+  function openRecover() {
+    recoverStep = 'email';
+    recoverEmail.readOnly = false;
+    recoverEmail.value = emailInput.value.trim();
+    recoverCode.value = '';
+    recoverCode.style.display = 'none';
+    recoverSubmit.textContent = 'Trimite codul';
+    showRecoverMessage('');
+    recoverOverlay.classList.add('show');
+    recoverEmail.focus();
+  }
+
+  function closeRecover() {
+    recoverOverlay.classList.remove('show');
+  }
+
+  document.getElementById('recoverOpenBtn').addEventListener('click', openRecover);
+  document.getElementById('recoverClose').addEventListener('click', closeRecover);
+  recoverOverlay.addEventListener('click', (e) => {
+    if (e.target === recoverOverlay) closeRecover();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && recoverOverlay.classList.contains('show')) closeRecover();
+  });
+
+  recoverForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = recoverEmail.value.trim();
+    if (!EMAIL_RE.test(email)) { showRecoverMessage('Introdu un email valid.'); return; }
+    recoverSubmit.disabled = true;
+    try {
+      if (recoverStep === 'email') {
+        await api('/api/recover', { method: 'POST', body: { email } });
+        recoverStep = 'code';
+        recoverEmail.readOnly = true;
+        recoverCode.style.display = 'block';
+        recoverSubmit.textContent = 'Confirmă';
+        showRecoverMessage('Dacă emailul e înscris, am trimis un cod (verifică și Spam). Este valabil 10 minute.', true);
+        recoverCode.focus();
+      } else {
+        const found = await api('/api/recover', { method: 'POST', body: { email, code: recoverCode.value.trim() } });
+        rememberOwner(found.id, found.owner_token);
+        closeRecover();
+        await fetchCrew();
+        showStatus('✅ Gata! Poți edita înscrierea ta de pe acest dispozitiv.', 'info');
+        setTimeout(hideStatus, 6000);
+      }
+    } catch (err) {
+      showRecoverMessage(err.message);
+      if (recoverStep === 'code') { recoverCode.value = ''; recoverCode.focus(); }
+    } finally {
+      recoverSubmit.disabled = false;
+    }
+  });
 
   function updateCountdown() {
     const tripDate = new Date(2026, 11, 5);

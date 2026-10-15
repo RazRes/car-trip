@@ -2,13 +2,16 @@
   "name": "car-trip",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "db:setup": "node scripts/setup-db.js",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.2.0"
+    "@neondatabase/serverless": "^1.2.0",
+    "nodemailer": "^10.1.1"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.3.0"
