@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Echipaj Transalpina</title>
+<title>Echipaj Grand Finale</title>
 <style>
   :root {
     --bg: #15171c;
@@ -222,28 +222,28 @@
   <div class="trip-banner">
     <div class="poster">
       <div class="poster-bg"></div>
-      <img src="trip-banner.png" alt="Afiș eveniment Ford RS/ST România — Transalpina">
+      <img src="trip-banner.png" alt="Afiș eveniment Ford ST/RS România — The Grand Finale 2026">
     </div>
     <div class="stats-row">
-      <div class="stat"><span class="label">Perioadă</span><span class="value">19–20 septembrie</span></div>
+      <div class="stat"><span class="label">Perioadă</span><span class="value">5 decembrie</span></div>
       <div class="stat"><span class="label">Rămas</span><span class="value" id="countdownValue">—</span></div>
-      <div class="stat"><span class="label">Direcție</span><span class="value">Transalpina</span></div>
-      <div class="stat"><span class="label">Ora de plecare</span><span class="value">07:00</span></div>
-      <div class="stat"><span class="label">Ora de intalnire</span><span class="value">06:00</span></div>
+      <div class="stat"><span class="label">Direcție</span><span class="value">Moșia Zeletin</span></div>
+      <div class="stat"><span class="label">Ora de plecare</span><span class="value">10:00</span></div>
+      <div class="stat"><span class="label">Ora de întâlnire</span><span class="value">09:00</span></div>
       <div class="stat stat-wide">
         <span class="label">Loc de întâlnire</span>
-        <span class="value" style="display:block; font-size:14px;">KFC Drive-Thru, Bulevardul Iuliu Maniu 560, 061129 București</span>
+        <span class="value" style="display:block; font-size:14px;">Primul spațiu de servicii de pe A3 București–Ploiești, pe sensul spre Ploiești</span>
         <div class="map-links">
-          <a href="https://www.google.com/maps/search/?api=1&query=44.435333%2C25.984139" target="_blank" rel="noopener">📍 Google Maps ↗</a>
-          <a href="https://waze.com/ul?ll=44.435333%2C25.984139&navigate=yes" target="_blank" rel="noopener">🚗 Waze ↗</a>
+          <a href="https://maps.app.goo.gl/9FPm1t3haeKGkuzT9?g_st=ic" target="_blank" rel="noopener">📍 Google Maps ↗</a>
+          <a href="https://waze.com/ul/hsxft7z1e7" target="_blank" rel="noopener">🚗 Waze ↗</a>
         </div>
       </div>
       <div class="stat stat-wide">
         <span class="label">Cazare</span>
-        <span class="value" style="display:block; font-size:14px;">Hotel Zan, Strada Ion Gheorghe Duca 213, Voineasa, Vâlcea</span>
+        <span class="value" style="display:block; font-size:14px;">Moșia Zeletin (după serpentinele Cheia)</span>
         <div class="map-links">
-          <a href="https://maps.app.goo.gl/Pe8T2xyvcrwjGjtK7" target="_blank" rel="noopener">📍 Google Maps ↗</a>
-          <a href="https://waze.com/ul?ll=45.4245683%2C23.9512617&navigate=yes" target="_blank" rel="noopener">🚗 Waze ↗</a>
+          <a href="https://maps.app.goo.gl/i124v3rijtKUzTXJ9?g_st=ic" target="_blank" rel="noopener">📍 Google Maps ↗</a>
+          <a href="https://waze.com/ul/hu849dshxb" target="_blank" rel="noopener">🚗 Waze ↗</a>
         </div>
       </div>
     </div>
@@ -256,7 +256,7 @@
     <div class="stat"><span class="label">Mașini confirmate</span><span class="value" id="summaryPeople">0</span></div>
     <div class="stat"><span class="label">Camere necesare</span><span class="value" id="summaryRooms">0</span></div>
   </div>
-  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">🔴 Cazare epuizată — toate cele 16 camere disponibile sunt deja rezervate. Puteți suna pe cont propriu la hotel (<a href="tel:0740010567">0740 010 567</a>), poate găsiți camere încă disponibile!</div>
+  <div id="roomsFullNote" class="rooms-full-note" style="display:none;">🔴 Cazare epuizată — toate cele 14 camere de la Moșia Zeletin sunt deja ocupate. Vă puteți căuta alternative de cazare în apropiere.</div>
 
   <form id="addForm">
     <input id="nameInput" placeholder="Nume">
@@ -279,9 +279,9 @@
     </div>
     <label class="checkbox-row" id="roomCheckRow">
       <input type="checkbox" id="roomCheck">
-      <span id="roomCheckLabel">Vrei cameră de hotel sambata seara?</span>
+      <span id="roomCheckLabel">Vrei cameră la Moșia Zeletin?</span>
     </label>
-    <div id="roomFullMsg" class="room-full-msg" style="display:none;">❌ Nu mai sunt camere disponibile — toate cele 16 camere sunt rezervate. Puteți suna pe cont propriu la hotel (<a href="tel:0740010567">0740 010 567</a>), poate găsiți camere încă disponibile!</div>
+    <div id="roomFullMsg" class="room-full-msg" style="display:none;">❌ Nu mai sunt camere disponibile — toate cele 14 camere sunt ocupate. Vă puteți căuta alternative de cazare în apropiere.</div>
     <div id="roomCountRow">
       <label class="field-label">Total persoane care împart camera (inclusiv tu)</label>
       <input id="roomCountInput" type="number" min="1" value="2">
@@ -304,13 +304,22 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = 'https://ltzuujyeyhdohxvqbthz.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_VG6zPybiK1mrU6lWMh9q4w_RHNgfKQk';
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // The access code lives on the server (ACCESS_CODE env var), never in this file.
+  let accessCode = null;
 
-  const PHONE_PASSWORD = '192026';
+  async function api(path, { method = 'GET', headers = {}, body } = {}) {
+    const res = await fetch(path, {
+      method,
+      headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...headers },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* empty body */ }
+    if (!res.ok) throw new Error((data && data.error) || `HTTP ${res.status}`);
+    return data;
+  }
+
   const loginOverlay = document.getElementById('loginOverlay');
   const loginForm = document.getElementById('loginForm');
   const loginInput = document.getElementById('loginInput');
@@ -340,7 +349,7 @@
   function unlockPhones() {
     showPhones = true;
     showPhonesBtn.style.display = 'none';
-    render();
+    fetchCrew();
   }
 
   showPhonesBtn.addEventListener('click', () => openLogin());
@@ -352,10 +361,16 @@
     if (e.key === 'Escape' && loginOverlay.classList.contains('show')) closeLogin();
   });
 
-  loginForm.addEventListener('submit', (e) => {
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const value = loginInput.value.trim();
-    if (value === PHONE_PASSWORD) {
+    let ok = false;
+    try {
+      await api('/api/verify', { method: 'POST', body: { code: value } });
+      ok = true;
+    } catch (err) { /* wrong code or server unreachable */ }
+    if (ok) {
+      accessCode = value;
       const onSuccess = onLoginSuccess;
       closeLogin();
       if (onSuccess) onSuccess();
@@ -388,7 +403,7 @@
   const roomsFullNote = document.getElementById('roomsFullNote');
   const roomCountRow = document.getElementById('roomCountRow');
   const roomCountInput = document.getElementById('roomCountInput');
-  const TOTAL_ROOMS = 16;
+  let totalRooms = 14;
   const submitBtn = document.getElementById('submitBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   const statusBanner = document.getElementById('statusBanner');
@@ -432,7 +447,7 @@
     const roomsTaken = crew.filter(p =>
       (p.rsvp_status || 'confirmed') === 'confirmed' && p.room_people && p.id !== editingId
     ).length;
-    const roomsAvailable = roomsTaken < TOTAL_ROOMS;
+    const roomsAvailable = roomsTaken < totalRooms;
     roomCheck.disabled = !roomsAvailable;
     roomCountInput.disabled = !roomsAvailable;
     roomCheckRow.classList.toggle('disabled', !roomsAvailable);
@@ -467,26 +482,10 @@
     localStorage.setItem(OWNER_KEY, JSON.stringify(tokens));
   }
 
-  let myManagedIds = new Set();
-
-  async function refreshManagedIds() {
-    const tokens = getOwnerTokens();
-    const ids = Object.keys(tokens);
-    const managed = new Set();
-    if (ids.length > 0) {
-      const { data, error } = await sb.from('crew_members').select('id,owner_token').in('id', ids);
-      if (!error && data) {
-        data.forEach(row => {
-          if (tokens[row.id] && tokens[row.id] === row.owner_token) managed.add(row.id);
-        });
-      }
-    }
-    myManagedIds = managed;
-  }
-
-  function canManage(person) {
-    if (!person.has_owner) return true;
-    return myManagedIds.has(person.id);
+  function authHeaders() {
+    const headers = { 'x-owner-tokens': JSON.stringify(getOwnerTokens()) };
+    if (accessCode) headers['x-access-code'] = accessCode;
+    return headers;
   }
 
   function escapeHtml(str) {
@@ -510,90 +509,144 @@
     return result;
   }
 
-  const TRIP_INFO_TEXT = `🏔️ TRANSALPINA GRAND TOUR 2026 | Ford ST/RS România 🇷🇴
+  const TRIP_INFO_TEXT = `🏁 FORD ST/RS ROMANIA 🏁
 
-Pregătiți-vă pentru un nou road trip al comunității! De data aceasta ne așteaptă un traseu spectaculos pe Transalpina, cu un convoi ST/RS, opriri pentru fotografii, videoclipuri și, bineînțeles, multă voie bună. 🔥
+🔥 THE GRAND FINALE 2026 🔥
 
-📅 ZIUA 1 — Sâmbătă, 19.09.2026
+📅 05 DECEMBRIE 2026 | ULTIMA AVENTURĂ A ANULUI
 
-📍 Punct de întâlnire: parcarea Auchan Militari Center, la KFC
-🕕 Întâlnirea: 06:00
-🕖 Plecare: 07:00
+După cum v-am obișnuit, revin cu ULTIMUL TRASEU AL ANULUI pentru această comunitate minunată și unită! ❤️
 
-📌 Locație:
-https://maps.app.goo.gl/jnKQV1bew64KS5WK8?g_st=ic
+De data aceasta, pornim pe o rută nouă, plină de peisaje spectaculoase, viraje strânse și serpentine care ne vor crește instant pulsul! 🏔️🔥
 
-Vă rugăm să veniți cu plinul făcut și mașina curată. Între 06:00 și 07:00 ne vom organiza, vom bea o cafea, vom sta la povești și, bineînțeles, vom face câteva poze înainte de plecare. 📸☕
+O ultimă ocazie în 2026 să ne reunim, să ne bucurăm de mașinile noastre, să facem fotografii memorabile și să încheiem sezonul așa cum se cuvine: ÎMPREUNĂ, PE ȘOSEA! 💚💙❤️
 
-🛣️ Ruta:
-București → Pitești → Vâlcea → Horezu → Novaci → Rânca → Transalpina → Voineasa
+━━━━━━━━━━━━━━━━━━
 
-⛽ Prima oprire – OMV Horezu
+🗺️ TRASEUL EVENIMENTULUI
 
-Aici vom alimenta cu toții, astfel încât să plecăm împreună spre Transalpina. Tot aici ne vom întâlni și cu băieții care vin din Olt, Covasna și Brașov.
+📍 București → Sărata Monteoru → Măgura → Barajul Siriu → Brașov → Serpentinele Cheia → Moșia Zeletin
 
-📍 OMV Horezu:
-https://maps.app.goo.gl/EU6m6L5S4NVzvYC78?g_st=ic
+🏁 Un traseu special, cu opriri pentru socializare, fotografii și o doză serioasă de plăcere la volan!
 
-🚗 A doua oprire – Penny Novaci
+━━━━━━━━━━━━━━━━━━
 
-Vom face o oprire la Penny Novaci pentru a ne întâlni cu Sebi, care vine din Târgu Mureș.
+📌 1. PUNCTUL DE ÎNTÂLNIRE
 
-📍 Penny Novaci:
-https://maps.app.goo.gl/yfAjW7UiUJcVe7pd9?g_st=ic
+📅 Data: 05.12.2026
+🕘 Ora întâlnirii: 09:00
+🕙 Ora plecării: 10:00
 
-De aici vom porni cu toții spre Transalpina, unde începe partea spectaculoasă a traseului. 🏔️🔥
+📍 Locație: Primul spațiu de servicii de pe Autostrada A3 București–Ploiești, pe sensul de mers către Ploiești.
 
-📸 Opriri pentru foto/video
+📲 Waze:
+https://waze.com/ul/hsxft7z1e7
 
-La fel ca data trecută pe Transfagarasan, vom face mai multe opriri pe Transalpina pentru a trage cadre cu mașinile și convoiul.
+📍 Google Maps:
+https://maps.app.goo.gl/9FPm1t3haeKGkuzT9?g_st=ic
 
-Dacă aveți prieteni fotografi sau videografi, nu ezitați să-i chemați cu noi! Cu cât avem mai multe camere și unghiuri, cu atât vom putea crea materiale mai spectaculoase. 🎥📸
+⏳ Vom avea la dispoziție o oră pentru:
+🤝 Socializare și revederea membrilor comunității;
+📸 Fotografii cu mașinile;
+🗣️ Prezentarea traseului și explicarea detaliilor organizatorice.
 
-🏨 Destinația zilei: ZAN Hotel Voineasa
+🧼⛽ IMPORTANT – PREGĂTIREA PENTRU EVENIMENT
 
-https://maps.app.goo.gl/ymEdDZoK99rdRnDd6?g_st=ic
+Vă rog să veniți la întâlnire cu MAȘINILE CURATE ȘI REZERVORUL PLIN! 🏎️✨
 
-⸻
+📸 Vrem să avem mașini impecabile pentru fotografiile și videoclipurile de grup, iar alimentarea în prealabil ne va ajuta să respectăm programul și să pornim la drum fără întârzieri.
 
-📅 ZIUA 2 — Duminică, 20.09.2026
+Ne întâlnim cu rezervoarele pline, mașinile strălucind și chef de distracție! 🔥
 
-🍳 După micul dejun vom pleca de la cazare către Obârșia Lotrului, de unde vom continua traseul Transalpinei spre Sebeș.
+🕙 La ora 10:00 pornim la drum!
 
-🏔️ Vom traversa astfel întregul sector spectaculos al Transalpinei și vom finaliza traseul la Sebeș.
+━━━━━━━━━━━━━━━━━━
 
-🛣️ Sebeș → Sibiu
+🏔️ 2. DRUMUL SPRE BARAJUL SIRIU
 
-Din Sebeș vom continua pe autostradă către Sibiu.
+Pornim spre Sărata Monteoru și Măgura, continuând apoi către zona Barajului Siriu.
 
-În funcție de timpul disponibil și de dorința grupului, putem face o oprire în centrul istoric al Sibiului. Vom decide împreună în ziua respectivă, în funcție de program și de condițiile de trafic.
+📸 Dacă timpul și condițiile ne permit, vom face o oprire pentru fotografii și pentru a ne bucura de peisajul spectaculos al zonei.
 
-🚗 Traseul de întoarcere
+━━━━━━━━━━━━━━━━━━
 
-De la Sibiu, ruta finală va fi stabilită în funcție de aglomerație și condițiile de trafic.
+⛽ 3. OPRIRE PENTRU ALIMENTARE – BRAȘOV
 
-Avem ca variante:
-➡️ Valea Oltului
-➡️ Brașov – DN1
-➡️ Sibiu – Pitești
+După parcurgerea acestui traseu spectaculos, la intrare în Brașov vom face o oprire pentru alimentarea cu carburant, astfel încât să putem continua traseul fără griji.
 
-⸻
+📲 Waze:
+https://waze.com/ul/hu845zd9fx
 
-🔥 SITUAȚIA PARTICIPANȚILOR
+📍 Google Maps:
+https://maps.app.goo.gl/RTh5VYECupt1t9897?g_st=ic
 
-În acest moment avem:
+⚠️ Chiar dacă ne întâlnim cu rezervorul plin, această oprire ne va permite să realimentăm înainte de ultima parte a traseului, în funcție de necesitățile fiecăruia.
 
-🚗 18 mașini confirmate
-🏨 15 persoane/echipaje au optat pentru cazare
+━━━━━━━━━━━━━━━━━━
 
-Dacă vreți să vă alăturați, dar nu v-ați exprimat încă votul, o puteți face prin linkul de mai jos.
-https://razres.github.io/car-trip/
+🔥 4. DESTINAȚIA FINALĂ – MOȘIA ZELETIN
 
-⚠️ Important: pentru cei care decid să vină de acum înainte, cazarea va trebui organizată individual.
+Din Brașov pornim spre destinația finală, traversând serpentinele din zona Cheia! 🏔️🏎️
 
+📍 Moșia Zeletin
 
-🔥🏔️ Ne vedem pe Transalpina!
-Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miros de benzină si anvelope 🚀`;
+📍 Google Maps:
+https://maps.app.goo.gl/i124v3rijtKUzTXJ9?g_st=ic
+
+📲 Waze:
+https://waze.com/ul/hu849dshxb
+
+🏡 Aici vom încheia traseul și ne vom bucura de timpul petrecut împreună, într-o atmosferă relaxată, alături de oameni care împărtășesc aceeași pasiune pentru comunitatea asta mică, dar cu o inimă mare din România❤️
+
+━━━━━━━━━━━━━━━━━━
+
+🛏️ 5. CAZARE – LOCURI LIMITATE!
+
+🏡 Cazarea la Moșia Zeletin este disponibilă în limita a 14 camere.
+
+📌 În cazul în care toate cele 14 camere sunt ocupate, participanții își pot căuta alternative de cazare în apropiere.
+
+━━━━━━━━━━━━━━━━━━
+
+📄 6. VERIFICAȚI DOCUMENTELE ÎNAINTE DE PLECARE!
+
+Vă rugăm să verificați din timp valabilitatea tuturor documentelor personale și ale mașinii.
+
+🪪 Documente personale:
+✅ Permis de conducere;
+✅ Act de identitate.
+
+🚘 Documente auto:
+✅ Certificat de înmatriculare;
+✅ Poliță RCA valabilă;
+✅ ITP valabil;
+✅ Rovinietă valabilă.
+✅ Trusă medicală, 2 seturi de triunghiuri reflectorizante, un stingător în caz de incendiu
+
+❄️ Având în vedere perioada desfășurării evenimentului, verificați și starea anvelopelor, presiunea acestora și pregătirea mașinii pentru condiții de iarnă, deși este posibil să avem temperaturi mai mult de toamnă.
+
+━━━━━━━━━━━━━━━━━━
+
+⚠️ 7. CÂTEVA REGULI PENTRU UN EVENIMENT REUȘIT
+
+🤝 Respect reciproc și atenție față de toți participanții;
+🏎️ Păstrarea distanței de siguranță între mașini;
+📸 Opriri și fotografii doar în locuri sigure;
+🛣️ Adaptarea vitezei la trafic, vreme și starea carosabilului.
+
+Suntem o comunitate unită, iar siguranța tuturor este prioritară! ❤️
+
+━━━━━━━━━━━━━━━━━━
+
+🏁 THE GRAND FINALE 2026
+
+📅 05 DECEMBRIE 2026
+
+Un ultim traseu. O comunitate. O pasiune comună.
+
+FORD ST/RS ROMANIA
+
+Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru ultima aventură a anului! 🏎️🔥`;
 
   function showStatus(message, type) {
     statusBanner.textContent = message;
@@ -630,16 +683,16 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
   const STATUS_ORDER = { confirmed: 0, maybe: 1, cant_come: 2 };
 
   async function fetchCrew() {
-    const { data, error } = await sb.from('crew_members')
-      .select('id,name,car,plate,phone,rsvp_status,room_people,notes,photo,has_owner,created_at')
-      .order('created_at', { ascending: false });
-    if (error) {
+    let data;
+    try {
+      data = await api('/api/crew', { headers: authHeaders() });
+    } catch (error) {
       showStatus('Nu am putut încărca lista — ' + error.message, 'error');
       return;
     }
-    await refreshManagedIds();
+    totalRooms = data.rooms_total;
     hideStatus();
-    crew = (data || []).slice().sort((a, b) => {
+    crew = (data.crew || []).slice().sort((a, b) => {
       const oa = STATUS_ORDER[a.rsvp_status || 'confirmed'];
       const ob = STATUS_ORDER[b.rsvp_status || 'confirmed'];
       return oa - ob;
@@ -662,11 +715,11 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
     }
     listEl.innerHTML = crew.map(person => {
       const status = person.rsvp_status || 'confirmed';
-      const mine = canManage(person);
+      const mine = person.mine;
       return `
       <div class="item ${status === 'cant_come' ? 'cant-come' : ''}">
-        ${person.photo
-          ? `<img class="avatar" src="${person.photo}" alt="">`
+        ${person.has_photo
+          ? `<img class="avatar" src="/api/photo?id=${encodeURIComponent(person.id)}&v=${person.ver}" alt="" loading="lazy">`
           : `<div class="avatar">🙂</div>`}
         <div class="info">
           <div class="name"><span class="status-badge ${status}">${STATUS_LABELS[status]}</span>${escapeHtml(person.name)}</div>
@@ -703,8 +756,12 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
   async function removePerson(id) {
     const person = crew.find(p => p.id === id);
     if (!confirm(`Ștergi pe ${person ? person.name : 'această persoană'} din echipaj?`)) return;
-    const { error } = await sb.from('crew_members').delete().eq('id', id);
-    if (error) { showStatus('Nu am putut șterge — ' + error.message, 'error'); return; }
+    try {
+      await api(`/api/crew?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { ...authHeaders(), 'x-owner-token': getOwnerTokens()[id] || '' }
+      });
+    } catch (error) { showStatus('Nu am putut șterge — ' + error.message, 'error'); return; }
     if (editingId === id) { editingId = null; resetForm(); }
     await fetchCrew();
   }
@@ -745,18 +802,19 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
 
   async function commit(fields) {
     if (editingId !== null) {
-      const update = { ...fields };
-      if (update.photo === undefined) delete update.photo;
-      const { error } = await sb.from('crew_members').update(update).eq('id', editingId);
-      if (error) { showStatus('Nu am putut salva modificările — ' + error.message, 'error'); return; }
+      try {
+        await api(`/api/crew?id=${encodeURIComponent(editingId)}`, {
+          method: 'PATCH',
+          headers: { 'x-owner-token': getOwnerTokens()[editingId] || '' },
+          body: fields
+        });
+      } catch (error) { showStatus('Nu am putut salva modificările — ' + error.message, 'error'); return; }
       editingId = null;
     } else {
-      const ownerToken = crypto.randomUUID();
-      const { data, error } = await sb.from('crew_members')
-        .insert([{ ...fields, photo: fields.photo || null, owner_token: ownerToken, has_owner: true }])
-        .select();
-      if (error) { showStatus('Nu am putut adăuga — ' + error.message, 'error'); return; }
-      if (data && data[0]) rememberOwner(data[0].id, ownerToken);
+      try {
+        const created = await api('/api/crew', { method: 'POST', body: fields });
+        rememberOwner(created.id, created.owner_token);
+      } catch (error) { showStatus('Nu am putut adăuga — ' + error.message, 'error'); return; }
     }
     hideStatus();
     resetForm();
@@ -814,7 +872,7 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
   }
 
   function updateCountdown() {
-    const tripDate = new Date(2026, 8, 19);
+    const tripDate = new Date(2026, 11, 5);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const days = Math.round((tripDate - today) / 86400000);
@@ -854,11 +912,12 @@ Pregătiți-vă pentru o zi plină de adrenalină, motoare turate la maxim, miro
   updateSubmitState();
   applyRoomAvailability();
 
-  sb.channel('crew_members_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_members' }, () => {
-      fetchCrew();
-    })
-    .subscribe();
+  // No realtime channel: refresh periodically while the tab is visible, and when it comes back.
+  const REFRESH_MS = 15000;
+  setInterval(() => { if (document.visibilityState === 'visible') fetchCrew(); }, REFRESH_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') fetchCrew();
+  });
 
   fetchCrew();
 </script>
