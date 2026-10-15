@@ -1,0 +1,33 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Ford ST/RS Romania//Grand Finale 2026//RO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:grand-finale-2026@ford-st-rs-romania
+DTSTAMP:20261015T120000Z
+DTSTART:20261205T070000Z
+DTEND:20261205T160000Z
+SUMMARY:Ford ST/RS România – The Grand Finale 2026
+LOCATION:Primul spațiu de servicii A3 București–Ploiești\, sens Ploie
+ ști
+GEO:44.5558226;26.1828524
+DESCRIPTION:Întâlnire 09:00\, plecare 10:00 de la primul spațiu de servi
+ cii de pe A3 București–Ploiești (spre Ploiești).\nTraseu: București 
+ → Sărata Monteoru → Măgura → Barajul Siriu → Brașov → Serpent
+ inele Cheia → Moșia Zeletin.\nGoogle Maps: https://maps.app.goo.gl/9FPm
+ 1t3haeKGkuzT9\nWaze: https://waze.com/ul/hsxft7z1e7\nAlimentare la intrare
+  în Brașov. Verifică documentele\, anvelopele și combustibilul înaint
+ e de plecare.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Mâine: Grand Finale 2026
+TRIGGER:-P1D
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Grand Finale: întâlnire la 09:00
+TRIGGER:-PT1H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -46,3 +46,11 @@ create table if not exists checkins (
   created_at timestamptz not null default now(),
   primary key (entry_id, stop)
 );
+
+-- Announcements posted by the organizers (shown at the top of the page)
+create table if not exists announcements (
+  id         uuid primary key default gen_random_uuid(),
+  seq        bigint generated always as identity,
+  body       text not null check (char_length(body) between 1 and 300),
+  created_at timestamptz not null default now()
+);

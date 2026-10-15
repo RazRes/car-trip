@@ -280,3 +280,32 @@ test('checkin: owners tick off stops, participants see who arrived, strangers se
   const gone = await db.query(`select count(*)::int as n from checkins where entry_id = $1::uuid`, [a.json.id]);
   assert.equal(gone.rows[0].n, 0, 'cascade on delete');
 });
+
+const announce = (method, { headers = {}, body, id } = {}) =>
+  call(handlers.announce, method, id ? `/api/announce?id=${id}` : '/api/announce', { headers, body });
+const admin = { 'x-access-code': 'secret1' };
+
+test('announce: everyone reads, only the access code posts and removes', async () => {
+  assert.equal((await announce('POST', { body: { body: 'Salut' } })).status, 403, 'anonymous cannot post');
+  assert.equal((await announce('POST', { headers: { 'x-access-code': 'nope' }, body: { body: 'Salut' } })).status, 403, 'wrong code');
+  const p = await create(person());
+  assert.equal((await announce('POST', { headers: ownerHdr(p), body: { body: 'Salut' } })).status, 403, 'an entry owner is not an organizer');
+
+  assert.equal((await announce('POST', { headers: admin, body: { body: '   ' } })).status, 400, 'empty');
+  assert.equal((await announce('POST', { headers: admin, body: { body: 'x'.repeat(301) } })).status, 400, 'too long');
+  assert.equal((await announce('POST', { headers: admin, body: { body: 'Plecăm la 10:15 ' } })).status, 200);
+  assert.equal((await announce('POST', { headers: admin, body: { body: 'Ne oprim la benzinărie' } })).status, 200);
+
+  const read = await announce('GET');   // no credentials needed
+  assert.equal(read.status, 200);
+  assert.deepEqual(read.json.announcements.map(a => a.body), ['Ne oprim la benzinărie', 'Plecăm la 10:15'], 'newest first, trimmed');
+  assert.ok(Math.abs(read.json.announcements[0].at - Date.now()) < 60000, 'timestamp in ms');
+
+  const id = read.json.announcements[0].id;
+  assert.equal((await announce('DELETE', { id })).status, 403);
+  assert.equal((await announce('DELETE', { headers: admin, id })).status, 200);
+  assert.equal((await announce('GET')).json.announcements.length, 1);
+
+  for (let i = 0; i < 7; i++) await announce('POST', { headers: admin, body: { body: 'm' + i } });
+  assert.equal((await announce('GET')).json.announcements.length, 5, 'only the newest few are returned');
+});

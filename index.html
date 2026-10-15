@@ -124,6 +124,44 @@
   .callout { display: flex; align-items: center; gap: 12px; background: var(--accent-soft); border-radius: 16px; padding: 14px 16px; font-size: 15px; font-weight: 600; }
   .callout svg { color: var(--accent-text); flex: none; }
 
+  /* ---------- announcements ---------- */
+  .announce { margin: 12px 20px 0; background: var(--surface); border: 1px solid var(--s2); border-radius: 16px; padding: 14px 16px 6px; }
+  .announce-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--s2); margin-bottom: 8px; }
+  .announce-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .announce-item:first-child { border-top: 0; padding-top: 2px; }
+  .announce-body { flex: 1; min-width: 0; font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-line; }
+  .announce-item:first-child .announce-body { font-size: 18px; font-weight: 600; }
+  .announce-item:not(:first-child) .announce-body { font-size: 14px; color: var(--mid); }
+  .announce-body a { color: var(--accent-text); }
+  .announce-when { display: block; margin-top: 3px; font-size: 12px; color: var(--dim); white-space: normal; font-weight: 400; }
+  .announce-del { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 18px; cursor: pointer; }
+  .announce-form { margin: 12px 20px 0; background: var(--surface); border: 1px dashed var(--s2); border-radius: 16px; padding: 14px 16px; }
+  .announce-form label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+  .announce-form textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 12px; background: var(--bg); color: var(--text); font: inherit; font-size: 16px; resize: vertical; }
+  .announce-form-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+  .announce-form-row span { font-size: 13px; color: var(--dim); }
+  .announce-form-row .btn-primary { width: auto; min-height: 46px; padding: 0 22px; }
+  .announce-error { min-height: 18px; margin-top: 6px; font-size: 13px; color: #FF8C8C; }
+  .organizer-link { display: block; margin: 14px auto 0; padding: 10px 14px; background: none; border: 0; color: var(--dim); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
+
+  /* ---------- calendar button ---------- */
+  .cal-btn { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 20px 0; min-height: 50px; border: 1px solid var(--line2); border-radius: 14px; background: transparent; color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; }
+  .cal-btn:hover { border-color: var(--accent-text); }
+
+  /* ---------- weather ---------- */
+  .weather-card { margin: 0 20px; padding: 4px 16px 6px; }
+  .weather-note { padding: 14px 0; font-size: 14px; color: var(--dim); line-height: 1.5; }
+  .weather-alert { margin: 12px 0 4px; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; background: rgba(252, 209, 22, 0.12); border: 1px solid rgba(252, 209, 22, 0.45); color: var(--text); }
+  .weather-alert.ok { background: var(--accent-soft); border-color: var(--line2); color: var(--mid); }
+  .weather-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .weather-row:first-of-type { border-top: 0; }
+  .weather-icon { font-size: 26px; text-align: center; line-height: 1; }
+  .weather-place { font-size: 15px; font-weight: 600; }
+  .weather-desc { font-size: 13px; color: var(--dim); }
+  .weather-temp { text-align: right; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .weather-temp small { display: block; font-family: inherit; font-size: 12px; font-style: normal; font-weight: 500; color: var(--dim); }
+  .weather-retry { background: none; border: 0; color: var(--accent-text); font: inherit; text-decoration: underline; cursor: pointer; padding: 0; }
+
   /* ---------- route ---------- */
   .route { margin: 0 20px; padding: 20px 18px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
   .stop { position: relative; display: flex; gap: 16px; }
@@ -405,6 +443,18 @@
   </section>
   <div id="statusBanner" class="status-banner"></div>
 
+  <section class="announce" id="announceBox" aria-label="Anunțuri de la organizatori" hidden>
+    <div class="announce-head"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>Anunț de la organizatori</div>
+    <div id="announceList"></div>
+  </section>
+
+  <form class="announce-form" id="announceForm" hidden>
+    <label for="announceInput">Anunț nou pentru toți participanții</label>
+    <textarea id="announceInput" maxlength="300" rows="3" placeholder="ex. Plecăm la 10:15, ne oprim la benzinărie"></textarea>
+    <div class="announce-form-row"><span id="announceCount">0/300</span><button type="submit" class="btn-primary" id="announceSend">Publică</button></div>
+    <div class="announce-error" id="announceError"></div>
+  </form>
+
   <div class="countdown-bar">
     <div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
     <span class="countdown-num" id="countdownValue">—</span>
@@ -416,6 +466,10 @@
     <div class="fact"><span class="label">Plecare</span><span class="value accent">10:00</span></div>
     <div class="fact"><span class="label">Camere</span><span class="value"><span class="rooms-total">14</span></span></div>
   </div>
+  <a class="cal-btn" href="grand-finale-2026.ics" download="grand-finale-2026.ics">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
+    Adaugă în calendar
+  </a>
 
   <div class="section-head"><h2>Unde ne vedem</h2></div>
   <div class="cards">
@@ -464,6 +518,9 @@
     <div data-stop="cheia" class="stop"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Serpentinele Cheia</div></div></div></div>
     <div data-stop="zeletin" class="stop stop-last"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Moșia Zeletin</div><div class="stop-sub">Destinația finală</div></div><span class="stop-tag">Final</span></div></div>
   </div>
+
+  <div class="section-head"><h2>Vremea</h2><span class="aside" id="weatherAside">5 dec</span></div>
+  <div class="card weather-card" id="weatherCard" aria-live="polite"></div>
 
   <div class="section-head"><h2>Harta live</h2><span class="aside" id="mapAside">doar participanți</span></div>
   <div class="card map-card" id="liveMapCard">
@@ -591,6 +648,7 @@
     <div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
     <span class="text">Ford ST/RS România · Grand Finale 2026</span>
   </div>
+  <button type="button" class="organizer-link" id="organizerBtn">Organizator? Postează un anunț</button>
 </div>
 
 <div class="modal-overlay" id="shareOverlay">
@@ -1768,6 +1826,170 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     if (e.key === 'Escape' && tripInfoOverlay.classList.contains('show')) closeTripInfo();
   });
 
+  // ---------- announcements from the organizers ----------
+  const announceBox = document.getElementById('announceBox');
+  const announceList = document.getElementById('announceList');
+  const announceForm = document.getElementById('announceForm');
+  const announceInput = document.getElementById('announceInput');
+  const announceError = document.getElementById('announceError');
+  let announcements = [];
+
+  function formatWhen(ms) {
+    const d = new Date(ms);
+    const clock = d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+    return d.toDateString() === new Date().toDateString()
+      ? `azi, ${clock}`
+      : `${d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })}, ${clock}`;
+  }
+
+  function renderAnnouncements() {
+    announceBox.hidden = announcements.length === 0;
+    announceList.textContent = '';
+    for (const a of announcements) {
+      const item = document.createElement('div');
+      item.className = 'announce-item';
+      const body = document.createElement('div');
+      body.className = 'announce-body';
+      body.innerHTML = linkify(a.body) + `<span class="announce-when">${escapeHtml(formatWhen(a.at))}</span>`;
+      item.appendChild(body);
+      if (accessCode) {
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'announce-del';
+        del.setAttribute('aria-label', 'Șterge anunțul');
+        del.textContent = '✕';
+        del.addEventListener('click', () => removeAnnouncement(a.id));
+        item.appendChild(del);
+      }
+      announceList.appendChild(item);
+    }
+  }
+
+  async function refreshAnnouncements() {
+    try {
+      const data = await api('/api/announce');
+      announcements = data.announcements || [];
+    } catch (err) { return; }   // keep what is shown if the request fails
+    renderAnnouncements();
+  }
+
+  async function removeAnnouncement(id) {
+    if (!confirm('Ștergi acest anunț pentru toată lumea?')) return;
+    try {
+      await api(`/api/announce?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: authHeaders() });
+    } catch (err) { showStatus('Nu am putut șterge anunțul — ' + err.message, 'error'); return; }
+    refreshAnnouncements();
+  }
+
+  function openAnnounceComposer() {
+    announceForm.hidden = false;
+    renderAnnouncements();   // adds the delete buttons now that the code is known
+    announceInput.focus();
+    announceForm.scrollIntoView({ block: 'center' });
+  }
+
+  document.getElementById('organizerBtn').addEventListener('click', () => {
+    if (accessCode) openAnnounceComposer();
+    else openLogin('Cod organizator', 'Introdu codul de acces ca să poți posta anunțuri.', openAnnounceComposer);
+  });
+  announceInput.addEventListener('input', () => {
+    document.getElementById('announceCount').textContent = `${announceInput.value.length}/300`;
+  });
+  announceForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = announceInput.value.trim();
+    if (!text) return;
+    const btn = document.getElementById('announceSend');
+    btn.disabled = true;
+    announceError.textContent = '';
+    try {
+      await api('/api/announce', { method: 'POST', headers: authHeaders(), body: { body: text } });
+      announceInput.value = '';
+      document.getElementById('announceCount').textContent = '0/300';
+      await refreshAnnouncements();
+    } catch (err) {
+      announceError.textContent = err.status === 403 ? 'Codul nu mai este valabil. Introdu-l din nou.' : (err.message || 'Nu am putut publica.');
+    }
+    btn.disabled = false;
+  });
+
+  // ---------- weather along the route (Open-Meteo, free, no key) ----------
+  const TRIP_DAY = '2026-12-05';
+  const FORECAST_DAYS_AHEAD = 15;   // the service only forecasts about two weeks out
+  const weatherCard = document.getElementById('weatherCard');
+  const weatherAside = document.getElementById('weatherAside');
+  let weatherLoadedAt = 0;
+
+  const WEATHER_CODES = [
+    [[0], '☀️', 'Senin'], [[1, 2], '⛅', 'Parțial noros'], [[3], '☁️', 'Noros'], [[45, 48], '🌫️', 'Ceață'],
+    [[51, 53, 55], '🌦️', 'Burniță'], [[56, 57, 66, 67], '🧊', 'Ploaie înghețată'], [[61, 63, 65], '🌧️', 'Ploaie'],
+    [[71, 73, 75, 77, 85, 86], '❄️', 'Ninsoare'], [[80, 81, 82], '🌦️', 'Averse'], [[95, 96, 99], '⛈️', 'Furtună']
+  ];
+  function describeWeather(code) {
+    const hit = WEATHER_CODES.find(([codes]) => codes.includes(code));
+    return hit ? { icon: hit[1], text: hit[2] } : { icon: '🌡️', text: '—' };
+  }
+
+  function weatherAdvice(rows) {
+    const snowy = rows.some(r => r.snow > 0 || [56, 57, 66, 67, 71, 73, 75, 77, 85, 86].includes(r.code));
+    const cold = rows.some(r => r.min <= 3);
+    const windy = rows.some(r => r.wind >= 50);
+    if (snowy) return { warn: true, text: 'Posibile ninsori sau polei pe traseu. Verifică anvelopele de iarnă, ia lanțuri și pornește cu rezervorul plin.' };
+    if (cold) return { warn: true, text: 'Temperaturi apropiate de îngheț: dimineața poate fi polei, mai ales pe serpentine. Mergi cu grijă.' };
+    if (windy) return { warn: true, text: 'Vânt puternic în unele zone. Fii atent la rafale pe porțiunile deschise.' };
+    return { warn: false, text: 'Nu se anunță probleme majore. Verifică din nou în ajun, vremea se poate schimba.' };
+  }
+
+  function renderWeather(rows) {
+    const advice = weatherAdvice(rows);
+    weatherCard.innerHTML = `<div class="weather-alert${advice.warn ? '' : ' ok'}">${advice.warn ? '⚠️ ' : ''}${escapeHtml(advice.text)}</div>` +
+      rows.map(r => {
+        const w = describeWeather(r.code);
+        const extra = [r.snow > 0 ? `❄ ${r.snow} cm` : (r.rain >= 0.5 ? `💧 ${r.rain} mm` : ''), `💨 ${Math.round(r.wind)} km/h`].filter(Boolean).join(' · ');
+        return `<div class="weather-row"><span class="weather-icon" aria-hidden="true">${w.icon}</span>` +
+          `<div><div class="weather-place">${escapeHtml(r.name)}</div><div class="weather-desc">${escapeHtml(w.text)} · ${escapeHtml(extra)}</div></div>` +
+          `<div class="weather-temp">${Math.round(r.max)}°<small>min ${Math.round(r.min)}°</small></div></div>`;
+      }).join('') +
+      '<div class="weather-note">Prognoză Open-Meteo, actualizată automat.</div>';
+  }
+
+  async function refreshWeather(force) {
+    const tripDate = new Date(2026, 11, 5);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = Math.round((tripDate - today) / 86400000);
+    if (days < 0) { weatherCard.hidden = true; weatherAside.parentElement.hidden = true; return; }
+    if (days > FORECAST_DAYS_AHEAD) {
+      const from = new Date(tripDate.getTime() - FORECAST_DAYS_AHEAD * 86400000)
+        .toLocaleDateString('ro-RO', { day: 'numeric', month: 'long' });
+      weatherCard.innerHTML = `<div class="weather-note">Prognoza pe traseu apare cu ${FORECAST_DAYS_AHEAD} de zile înainte, din ${escapeHtml(from)}. Revino atunci ca să vezi dacă ai nevoie de anvelope de iarnă sau lanțuri.</div>`;
+      return;
+    }
+    if (!force && Date.now() - weatherLoadedAt < 30 * 60 * 1000) return;
+    const lat = STOPS.map(s => s.lat).join(',');
+    const lng = STOPS.map(s => s.lng).join(',');
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lng +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum,wind_speed_10m_max' +
+      '&timezone=Europe%2FBucharest&start_date=' + TRIP_DAY + '&end_date=' + TRIP_DAY;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('http ' + res.status);
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : [data];
+      const rows = list.map((d, i) => ({
+        name: STOPS[i].name === 'Start · A3' ? 'București' : STOPS[i].name,
+        code: d.daily.weather_code[0], max: d.daily.temperature_2m_max[0], min: d.daily.temperature_2m_min[0],
+        rain: d.daily.precipitation_sum[0], snow: d.daily.snowfall_sum[0], wind: d.daily.wind_speed_10m_max[0]
+      }));
+      if (rows.some(r => [r.max, r.min, r.wind].some(v => typeof v !== 'number'))) throw new Error('incomplete');
+      renderWeather(rows);
+      weatherLoadedAt = Date.now();
+    } catch (err) {
+      weatherCard.innerHTML = '<div class="weather-note">Nu am putut încărca prognoza acum. <button type="button" class="weather-retry" id="weatherRetry">Încearcă din nou</button></div>';
+      document.getElementById('weatherRetry').addEventListener('click', () => refreshWeather(true));
+    }
+  }
+
   updateCountdown();
   maybeShowWelcome();
   refreshMap();
@@ -1782,6 +2004,12 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   });
 
   fetchCrew();
+  refreshAnnouncements();
+  refreshWeather();
+  setInterval(() => { if (document.visibilityState === 'visible') { refreshAnnouncements(); refreshWeather(); } }, REFRESH_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') { refreshAnnouncements(); refreshWeather(); }
+  });
 </script>
 </body>
 </html>

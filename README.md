@@ -39,6 +39,19 @@ location: it just records which stop and when (table `checkins`), and registered
 `ACCESS_CODE` holder) see who has arrived at each stop. The owner can undo it. Run `db/schema.sql`
 again so the `checkins` table exists.
 
+## Announcements, weather, calendar
+
+- **Announcements:** anyone with the `ACCESS_CODE` can post a short message ("Organizator? Postează un anunț"
+  link in the footer). It shows at the top of the page for everyone (the last 5 are kept visible) and can be
+  removed with the ✕ button. Table `announcements`, endpoint `/api/announce`.
+- **Weather:** the page asks Open-Meteo (free, no key) for the trip day at the route stops. The service only
+  forecasts about 15 days ahead, so before 20 Nov the card says when it will appear. It warns about snow, ice
+  or freezing temperatures. The section disappears after the trip day.
+- **Calendar:** `grand-finale-2026.ics` is a static file (Sat 5 Dec 2026, 09:00–18:00 Romanian time, with the
+  meeting point and route in the description, plus reminders the day before and an hour before). Edit it if
+  the times change.
+- Run `db/schema.sql` again so the `announcements` table exists.
+
 ## Notes
 
 - Emails are unique, never shown publicly, and only returned to the entry's owner.
