@@ -743,16 +743,18 @@
     return div.innerHTML;
   }
 
+  // Turns [label](https://…) into a labelled link and bare https:// URLs into links showing the URL.
   function linkify(text) {
-    const urlRe = /(https?:\/\/\S+)/g;
+    const linkRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/\S+)/g;
     let result = '';
     let lastIndex = 0;
     let match;
-    while ((match = urlRe.exec(text)) !== null) {
+    while ((match = linkRe.exec(text)) !== null) {
       result += escapeHtml(text.slice(lastIndex, match.index));
-      const url = match[0];
-      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
-      lastIndex = match.index + url.length;
+      const url = match[2] || match[3];
+      const label = match[1] || url;
+      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
+      lastIndex = match.index + match[0].length;
     }
     result += escapeHtml(text.slice(lastIndex));
     return result;
@@ -775,6 +777,9 @@ O ultimă ocazie în 2026 să ne reunim, să ne bucurăm de mașinile noastre, s
 🗺️ TRASEUL EVENIMENTULUI
 
 📍 București → Sărata Monteoru → Măgura → Barajul Siriu → Brașov → Serpentinele Cheia → Moșia Zeletin
+
+🗺️ Traseul complet pe Google Maps:
+[Deschide traseul în Google Maps](https://www.google.com/maps/dir/Spațiu+Servicii,+H54M%2B84,+Ștefăneștii+de+Sus/45.145373,26.643885/Sărata+Monteoru+-+Măgura,+DJ203G/Fountain+of+Mihai+Viteazu,+DN10/Barajul+Siriu,+DN10/PETROM,+Strada+Hărmanului+55,+500222+Brașov/Mosia+Zeletin,+d,+107444+Comuna+Posești/@45.4450721,25.8155078,10.6z/data=!4m40!4m39!1m5!1m1!1s0x40b21d004cdd473b:0x3b5d14918aee9fe!2m2!1d26.1828524!2d44.5558226!1m1!4e1!1m5!1m1!1s0x40b3dd2772fa5bb7:0xbacd1309b7454bb8!2m2!1d26.5845185!2d45.1550513!1m5!1m1!1s0x40b3e914fdfa8b85:0x7a3cfdc6f1a92a0d!2m2!1d26.553031!2d45.2711468!1m5!1m1!1s0x40b38460a64d6a21:0xb2cc0b975299e205!2m2!1d26.2528663!2d45.4915678!1m5!1m1!1s0x40b35c036533214d:0x1b0419cb9353344e!2m2!1d25.6448114!2d45.6733974!1m5!1m1!1s0x40b3a2dad36d08d1:0xb9cc8f304785367e!2m2!1d26.1310972!2d45.2877349!3e0?entry=ttu&g_ep=EgoyMDI2MTAxMi4wIKXMDSoASAFQAw%3D%3D)
 
 🏁 Un traseu special, cu opriri pentru socializare, fotografii și o doză serioasă de plăcere la volan!
 
