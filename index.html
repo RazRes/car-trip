@@ -102,6 +102,11 @@
   .section-head { display: flex; align-items: baseline; justify-content: space-between; margin: 40px 20px 14px; }
   .section-head h2, .card-form h2 { margin: 0; font-family: var(--display); font-style: italic; font-weight: 800; font-size: 32px; line-height: 1.05; text-transform: uppercase; }
   .section-head .aside { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+  .crew-title { flex: 1; }
+  .collapse-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; background: none; border: 0; color: inherit; font: inherit; text-transform: inherit; text-align: left; cursor: pointer; }
+  .collapse-side { display: flex; align-items: center; gap: 10px; color: var(--dim); }
+  .chevron { transition: transform 0.2s; }
+  .collapse-toggle[aria-expanded="false"] .chevron { transform: rotate(-90deg); }
   .count-chip { min-width: 34px; text-align: center; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--surface2); color: var(--mid); }
 
   .cards { margin: 0 20px; display: flex; flex-direction: column; gap: 12px; }
@@ -475,6 +480,7 @@
     <div class="share-box">
       <div class="share-state" id="shareState">Locația ta nu este distribuită.</div>
       <button type="button" class="btn-primary" id="shareBtn" hidden>Distribuie locația mea</button>
+      <button type="button" class="btn-secondary btn-ghost" id="unshareBtn" hidden>Șterge locația mea de pe hartă</button>
     </div>
   </div>
 
@@ -578,7 +584,7 @@
     </form>
   </div>
 
-  <div class="section-head"><h2>Echipajul</h2><span class="count-chip" id="crewCount">0</span></div>
+  <div class="section-head"><h2 class="crew-title"><button type="button" class="collapse-toggle" id="crewToggle" aria-expanded="true" aria-controls="list"><span>Echipajul</span><span class="collapse-side"><span class="count-chip" id="crewCount">0</span><svg class="chevron" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></button></h2></div>
   <div id="list"></div>
 
   <div class="footer">
@@ -704,6 +710,16 @@
   let showPhones = false;
 
   const listEl = document.getElementById('list');
+  const crewToggle = document.getElementById('crewToggle');
+  const CREW_OPEN_KEY = 'trip-crew-list-open';
+
+  function setCrewOpen(open) {
+    listEl.hidden = !open;
+    crewToggle.setAttribute('aria-expanded', String(open));
+    try { localStorage.setItem(CREW_OPEN_KEY, open ? '1' : '0'); } catch (e) { /* remembering is optional */ }
+  }
+  crewToggle.addEventListener('click', () => setCrewOpen(listEl.hidden));
+  try { if (localStorage.getItem(CREW_OPEN_KEY) === '0') setCrewOpen(false); } catch (e) { /* default: open */ }
   const nameInput = document.getElementById('nameInput');
   const carInput = document.getElementById('carInput');
   const plateInput = document.getElementById('plateInput');
@@ -1073,7 +1089,8 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
       listEl.innerHTML = '<div class="empty">Nimeni adăugat încă.</div>';
       return;
     }
-    listEl.innerHTML = crew.map(person => {
+    const ordered = [...crew.filter(p => p.mine), ...crew.filter(p => !p.mine)];
+    listEl.innerHTML = ordered.map(person => {
       const status = person.rsvp_status || 'confirmed';
       const mine = person.mine;
       const tone = carTone(person.car);
@@ -1353,6 +1370,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   const mapCount = document.getElementById('mapCount');
   const mapList = document.getElementById('mapList');
   const shareBtn = document.getElementById('shareBtn');
+  const unshareBtn = document.getElementById('unshareBtn');
   const shareState = document.getElementById('shareState');
   const shareOverlay = document.getElementById('shareOverlay');
   const shareError = document.getElementById('shareError');
@@ -1405,6 +1423,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
 
   function drawLocations(locations) {
     lastLocations = locations;
+    updateShareUI();
     const seen = new Set();
     locations.forEach(l => {
       seen.add(l.id);
@@ -1567,10 +1586,15 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     shareBtn.hidden = !sharing && !id;
     shareBtn.textContent = sharing ? 'Oprește distribuirea' : 'Distribuie locația mea';
     shareBtn.className = sharing ? 'btn-secondary btn-ghost' : 'btn-primary';
+    // After a reload (or the phone suspending the page) the server may still show my last position
+    // while this page is no longer sharing: offer a way to take it off the map.
+    const leftover = !sharing && lastLocations.some(l => l.mine);
+    unshareBtn.hidden = !leftover;
     shareState.classList.toggle('on', sharing && !shareProblem);
     shareState.classList.toggle('error', !!shareProblem);
     if (shareProblem) shareState.textContent = shareProblem;
     else if (sharing) shareState.textContent = lastSentAt ? 'Îți distribui locația · actualizat ' + formatAge((Date.now() - lastSentAt) / 1000) : 'Se caută locația ta…';
+    else if (leftover) shareState.textContent = 'Locația ta încă apare pe hartă, dar nu se mai actualizează.';
     else shareState.textContent = id ? 'Locația ta nu este distribuită.' : 'Înscrie-te sau recuperează-ți înscrierea ca să îți poți distribui locația.';
   }
 
@@ -1681,6 +1705,21 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     shareOverlay.classList.remove('show');
   }
 
+  unshareBtn.addEventListener('click', async () => {
+    unshareBtn.disabled = true;
+    shareProblem = '';
+    const mine = lastLocations.filter(l => l.mine);
+    try {
+      for (const l of mine) {
+        await api(`/api/location?id=${encodeURIComponent(l.id)}`, { method: 'DELETE', headers: { 'x-owner-token': getOwnerTokens()[l.id] || '' } });
+      }
+    } catch (e) {
+      shareProblem = 'Nu am putut șterge locația (' + (e.message || 'eroare de rețea') + '). Încearcă din nou.';
+    }
+    unshareBtn.disabled = false;
+    await refreshMap();
+    updateShareUI();
+  });
   shareBtn.addEventListener('click', () => { if (watchId !== null) stopSharing(); else openShareDialog(); });
   document.getElementById('shareConfirm').addEventListener('click', startSharing);
   document.getElementById('shareCancel').addEventListener('click', closeShareDialog);
