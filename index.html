@@ -189,11 +189,9 @@
   .login-box h2 { margin: 0 0 4px; font-size: 16px; }
   .login-box p { color: var(--text-dim); font-size: 13px; margin: 0 0 16px; }
   #loginForm, #recoverForm { background: none; border: none; padding: 0; margin: 0; }
-  #loginInput, #recoverCode { text-align: center; font-size: 22px; letter-spacing: 6px; min-width: 0; width: 100%; }
+  #loginInput { text-align: center; font-size: 22px; letter-spacing: 6px; min-width: 0; width: 100%; }
   #recoverEmail { text-align: center; }
-  #recoverCode { display: none; margin-top: 8px; }
   #loginError, #recoverError { display: none; color: var(--accent); font-size: 12px; margin-top: 8px; }
-  #recoverError.ok { color: var(--green); }
   .field-hint { font-size: 11px; color: var(--text-dim); margin-top: -4px; }
   #loginForm button, #recoverForm button { width: 100%; margin-top: 12px; }
   @keyframes shake {
@@ -225,12 +223,11 @@
     <button type="button" class="modal-close" id="recoverClose" aria-label="Închide">✕</button>
     <div class="lock-icon">✉️</div>
     <h2>Recuperează-ți înscrierea</h2>
-    <p id="recoverText">Introdu emailul cu care te-ai înscris. Îți trimitem un cod de 6 cifre ca să poți edita înscrierea și de pe acest dispozitiv.</p>
+    <p id="recoverText">Introdu emailul cu care te-ai înscris ca să poți edita înscrierea și de pe acest dispozitiv.</p>
     <form id="recoverForm">
       <input id="recoverEmail" type="email" inputmode="email" autocomplete="email" placeholder="email@exemplu.ro">
-      <input id="recoverCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
       <div id="recoverError"></div>
-      <button type="submit" id="recoverSubmit">Trimite codul</button>
+      <button type="submit" id="recoverSubmit">Recuperează</button>
     </form>
   </div>
 </div>
@@ -903,26 +900,17 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   const recoverOverlay = document.getElementById('recoverOverlay');
   const recoverForm = document.getElementById('recoverForm');
   const recoverEmail = document.getElementById('recoverEmail');
-  const recoverCode = document.getElementById('recoverCode');
   const recoverError = document.getElementById('recoverError');
-  const recoverText = document.getElementById('recoverText');
   const recoverSubmit = document.getElementById('recoverSubmit');
-  let recoverStep = 'email';
 
-  function showRecoverMessage(message, ok) {
+  function showRecoverError(message) {
     recoverError.textContent = message;
-    recoverError.classList.toggle('ok', !!ok);
     recoverError.style.display = message ? 'block' : 'none';
   }
 
   function openRecover() {
-    recoverStep = 'email';
-    recoverEmail.readOnly = false;
     recoverEmail.value = emailInput.value.trim();
-    recoverCode.value = '';
-    recoverCode.style.display = 'none';
-    recoverSubmit.textContent = 'Trimite codul';
-    showRecoverMessage('');
+    showRecoverError('');
     recoverOverlay.classList.add('show');
     recoverEmail.focus();
   }
@@ -943,28 +931,17 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
   recoverForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = recoverEmail.value.trim();
-    if (!EMAIL_RE.test(email)) { showRecoverMessage('Introdu un email valid.'); return; }
+    if (!EMAIL_RE.test(email)) { showRecoverError('Introdu un email valid.'); return; }
     recoverSubmit.disabled = true;
     try {
-      if (recoverStep === 'email') {
-        await api('/api/recover', { method: 'POST', body: { email } });
-        recoverStep = 'code';
-        recoverEmail.readOnly = true;
-        recoverCode.style.display = 'block';
-        recoverSubmit.textContent = 'Confirmă';
-        showRecoverMessage('Dacă emailul e înscris, am trimis un cod (verifică și Spam). Este valabil 10 minute.', true);
-        recoverCode.focus();
-      } else {
-        const found = await api('/api/recover', { method: 'POST', body: { email, code: recoverCode.value.trim() } });
-        rememberOwner(found.id, found.owner_token);
-        closeRecover();
-        await fetchCrew();
-        showStatus('✅ Gata! Poți edita înscrierea ta de pe acest dispozitiv.', 'info');
-        setTimeout(hideStatus, 6000);
-      }
+      const found = await api('/api/recover', { method: 'POST', body: { email } });
+      rememberOwner(found.id, found.owner_token);
+      closeRecover();
+      await fetchCrew();
+      showStatus('✅ Gata! Poți edita înscrierea ta de pe acest dispozitiv.', 'info');
+      setTimeout(hideStatus, 6000);
     } catch (err) {
-      showRecoverMessage(err.message);
-      if (recoverStep === 'code') { recoverCode.value = ''; recoverCode.focus(); }
+      showRecoverError(err.message);
     } finally {
       recoverSubmit.disabled = false;
     }

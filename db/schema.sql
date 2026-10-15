@@ -13,21 +13,17 @@ create table if not exists crew_members (
   notes       text,
   photo       text,
   owner_token text not null,
-  code_hash       text,
-  code_expires_at timestamptz,
-  code_attempts   integer not null default 0,
-  code_sent_at    timestamptz,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
 
 create index if not exists crew_members_created_at_idx on crew_members (created_at desc);
 
--- Upgrade for tables created before email recovery existed (safe to re-run)
+-- Upgrade for tables created by earlier versions of this file (safe to re-run)
 alter table crew_members add column if not exists email text;
-alter table crew_members add column if not exists code_hash text;
-alter table crew_members add column if not exists code_expires_at timestamptz;
-alter table crew_members add column if not exists code_attempts integer not null default 0;
-alter table crew_members add column if not exists code_sent_at timestamptz;
+alter table crew_members drop column if exists code_hash;
+alter table crew_members drop column if exists code_expires_at;
+alter table crew_members drop column if exists code_attempts;
+alter table crew_members drop column if exists code_sent_at;
 
 create unique index if not exists crew_members_email_idx on crew_members (lower(email));

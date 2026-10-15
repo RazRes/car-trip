@@ -4,19 +4,15 @@ import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { makeHandlers } from '../lib/app.js';
 
-const env = { ACCESS_CODE: 'secret1', ROOMS_TOTAL: '2', SMTP_HOST: 'x', SMTP_USER: 'x', SMTP_PASS: 'x' };
+const env = { ACCESS_CODE: 'secret1', ROOMS_TOTAL: '2' };
 let handlers;
-let db;
-const outbox = [];
 let emailCounter = 0;
 
 before(async () => {
-  db = new PGlite();
+  const db = new PGlite();
   const schema = await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8');
   await db.exec(schema);
-  handlers = makeHandlers(async (text, params) => (await db.query(text, params)).rows, env, {
-    sendMail: async msg => { outbox.push(msg); },
-  });
+  handlers = makeHandlers(async (text, params) => (await db.query(text, params)).rows, env);
 });
 
 async function call(handler, method, path, { headers = {}, body } = {}) {
@@ -155,56 +151,22 @@ test('email is required, normalized, unique, and only visible to its owner', asy
 });
 
 const recover = body => call(handlers.recover, 'POST', '/api/recover', { body });
-const lastCode = () => outbox.at(-1).text.match(/\b(\d{6})\b/)[1];
 
-test('recover: emailed code swaps for the owner token', async () => {
+test('recover: the signup email returns the entry, any capitalization', async () => {
   const a = await create(person({ email: 'rec@example.com' }));
-  outbox.length = 0;
-
-  const req = await recover({ email: 'REC@example.com' });
-  assert.equal(req.status, 200);
-  assert.equal(outbox.length, 1);
-  assert.equal(outbox[0].to, 'rec@example.com');
-
-  assert.equal((await recover({ email: 'rec@example.com', code: '000000' })).status, 401);
-  const ok = await recover({ email: 'rec@example.com', code: lastCode() });
-  assert.equal(ok.status, 200);
-  assert.equal(ok.json.id, a.json.id);
-  assert.equal(ok.json.owner_token, a.json.owner_token);
-
-  // the code is single-use
-  assert.equal((await recover({ email: 'rec@example.com', code: lastCode() })).status, 401);
-});
-
-test('recover: unknown email looks identical and sends nothing', async () => {
-  outbox.length = 0;
-  const r = await recover({ email: 'ghost@example.com' });
+  const r = await recover({ email: '  REC@Example.com ' });
   assert.equal(r.status, 200);
-  assert.deepEqual(r.json, { ok: true });
-  assert.equal(outbox.length, 0);
-  assert.equal((await recover({ email: 'ghost@example.com', code: '123456' })).status, 401);
+  assert.equal(r.json.id, a.json.id);
+  assert.equal(r.json.owner_token, a.json.owner_token);
+
+  // and the token it returns really works for editing
+  const edit = await call(handlers.crew, 'PATCH', `/api/crew?id=${r.json.id}`, { headers: { 'x-owner-token': r.json.owner_token }, body: person({ name: 'Recovered', email: 'rec@example.com' }) });
+  assert.equal(edit.status, 200);
 });
 
-test('recover: resend is throttled, attempts are limited, codes expire', async () => {
-  await create(person({ email: 'lim@example.com' }));
-  outbox.length = 0;
-  await recover({ email: 'lim@example.com' });
-  await recover({ email: 'lim@example.com' });
-  assert.equal(outbox.length, 1, 'second request within a minute sends nothing');
-
-  const good = lastCode();
-  for (let i = 0; i < 5; i++) assert.equal((await recover({ email: 'lim@example.com', code: '999999' })).status, 401);
-  assert.equal((await recover({ email: 'lim@example.com', code: good })).status, 401, 'locked after 5 wrong tries even with the right code');
-
-  await db.query(`update crew_members set code_sent_at = now() - interval '2 minutes' where lower(email) = 'lim@example.com'`);
-  await recover({ email: 'lim@example.com' });
-  assert.equal(outbox.length, 2);
-  await db.query(`update crew_members set code_expires_at = now() - interval '1 second' where lower(email) = 'lim@example.com'`);
-  assert.equal((await recover({ email: 'lim@example.com', code: lastCode() })).status, 401, 'expired');
-});
-
-test('recover reports missing mail config', async () => {
-  const bare = makeHandlers(async () => [], { ACCESS_CODE: 'x' });
-  const r = await call(bare.recover, 'POST', '/api/recover', { body: { email: 'a@b.co' } });
-  assert.equal(r.status, 503);
+test('recover: unknown or invalid email is rejected', async () => {
+  assert.equal((await recover({ email: 'ghost@example.com' })).status, 404);
+  assert.equal((await recover({ email: 'not-an-email' })).status, 400);
+  assert.equal((await recover({})).status, 400);
+  assert.equal((await call(handlers.recover, 'GET', '/api/recover')).status, 405);
 });
