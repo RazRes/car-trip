@@ -42,7 +42,7 @@ again so the `checkins` table exists.
 ## Announcements, weather, calendar
 
 - **Announcements:** anyone with the `ACCESS_CODE` can post a short message ("Organizator? Postează un anunț"
-  link in the footer). It shows at the top of the page for everyone (the last 5 are kept visible) and can be
+  link under the calendar button). It shows at the top of the page for everyone (the last 5 are kept visible) and can be
   removed with the ✕ button. Table `announcements`, endpoint `/api/announce`.
 - **Weather:** the page asks Open-Meteo (free, no key) for the trip day at the route stops. The service only
   forecasts about 15 days ahead, so before 20 Nov the card says when it will appear. It warns about snow, ice
