@@ -232,7 +232,7 @@
   .footer span.text { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); text-align: right; }
 
   /* ---------- live map ---------- */
-  .map-card { margin: 0 20px; padding: 0; overflow: hidden; }
+  .map-card { margin: 0 20px; padding: 0; overflow: hidden; position: relative; z-index: 0; isolation: isolate; }
   #liveMap { height: 340px; background: var(--bg); }
   .leaflet-container { font-family: 'Barlow', system-ui, sans-serif; background: var(--bg); }
   .leaflet-tile-pane { filter: invert(1) hue-rotate(200deg) brightness(0.82) contrast(0.95) saturate(0.55); }
@@ -266,7 +266,7 @@
   #shareError { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; text-align: left; }
 
   /* ---------- dialogs ---------- */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(3, 8, 22, 0.8); z-index: 20; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(3, 8, 22, 0.8); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
   .modal-overlay.show { display: flex; }
   .modal-box {
     position: relative; background: var(--surface); border: 1px solid var(--line2); border-radius: 22px;
