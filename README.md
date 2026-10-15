@@ -18,6 +18,20 @@ Crew sign-up page for the ST/RS road trips. Static `index.html` plus three Verce
 An entry is tied to the device it was created on. On another phone or computer, people tap
 "M-am înscris deja" and type the email they signed up with. No password, no code.
 
+## Live map
+
+People with a registered entry can tap "Distribuie locația mea" on the trip day. Their position is
+published every ~10 s while the page is open (it asks the phone to keep the screen on) and shown on a
+map to other registered participants, or to anyone who enters `ACCESS_CODE`.
+
+- Only the latest position per entry is stored (table `locations`). It stops showing after 10 minutes
+  without an update, "Oprește" deletes it at once, sharing ends by itself after 12 hours, and rows older
+  than 24 hours are deleted. Deleting an entry deletes its position.
+- Run `db/schema.sql` again after updating so the `locations` table exists.
+- The map is Leaflet (vendored in `vendor/leaflet`) with OpenStreetMap tiles. That is fine for a small
+  group; for heavy use switch to a tile provider with a key (see the OSM tile usage policy).
+- A web page cannot track location in the background, so this only works while the page is open.
+
 ## Notes
 
 - Emails are unique, never shown publicly, and only returned to the entry's owner.

@@ -27,3 +27,14 @@ alter table crew_members drop column if exists code_attempts;
 alter table crew_members drop column if exists code_sent_at;
 
 create unique index if not exists crew_members_email_idx on crew_members (lower(email));
+
+-- Live map: one latest position per entry, removed with the entry
+create table if not exists locations (
+  entry_id   uuid primary key references crew_members(id) on delete cascade,
+  lat        double precision not null,
+  lng        double precision not null,
+  accuracy   real,
+  heading    real,
+  speed      real,
+  updated_at timestamptz not null default now()
+);

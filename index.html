@@ -7,6 +7,7 @@
 <title>Ford ST/RS — The Grand Finale 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -41,6 +42,7 @@
   }
   button, input, textarea, select { font-family: inherit; }
   button { cursor: pointer; }
+  [hidden] { display: none !important; }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   a { color: inherit; text-decoration: none; }
   input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, label:focus-within {
@@ -229,6 +231,40 @@
   .footer .stripe i { height: 14px; }
   .footer span.text { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); text-align: right; }
 
+  /* ---------- live map ---------- */
+  .map-card { margin: 0 20px; padding: 0; overflow: hidden; }
+  #liveMap { height: 340px; background: var(--bg); }
+  .leaflet-container { font-family: 'Barlow', system-ui, sans-serif; background: var(--bg); }
+  .leaflet-tile-pane { filter: invert(1) hue-rotate(200deg) brightness(0.82) contrast(0.95) saturate(0.55); }
+  .leaflet-control-attribution { background: rgba(5, 14, 43, 0.75) !important; color: var(--dim) !important; font-size: 10px; }
+  .leaflet-control-attribution a { color: var(--accent-text) !important; }
+  .leaflet-bar a { background: var(--surface); color: var(--text); border-color: var(--line2); }
+  .leaflet-bar a:hover { background: var(--surface2); color: var(--text); }
+  .car-pin { background: none; border: 0; }
+  .car-pin-dot { position: absolute; left: -10px; top: -10px; width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35); }
+  .car-pin.mine .car-pin-dot { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35); }
+  .car-pin-label { position: absolute; left: 14px; top: -12px; white-space: nowrap; font-family: var(--display); font-weight: 800; font-style: italic; font-size: 14px; letter-spacing: 0.02em; color: #fff; background: rgba(5, 14, 43, 0.82); border: 1px solid var(--line2); border-radius: 999px; padding: 0 8px; line-height: 20px; }
+  .stop-pin { background: none; border: 0; }
+  .stop-pin-dot { position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; transform: rotate(45deg); background: var(--bg); border: 2px solid var(--accent-text); }
+  .stop-pin.finish .stop-pin-dot { background: #E4202E; border-color: #fff; }
+  .stop-pin-label { position: absolute; left: 11px; top: -9px; white-space: nowrap; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); text-shadow: 0 1px 3px #000, 0 0 6px #000; }
+  .map-locked { padding: 26px 20px 22px; text-align: center; }
+  .map-locked p { margin: 0 auto 16px; max-width: 330px; color: var(--dim); font-size: 15px; }
+  .map-locked .btn-secondary { width: auto; display: inline-flex; margin: 0 auto; }
+  .map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 14px; color: var(--mid); }
+  .map-buttons { display: flex; gap: 8px; flex: none; }
+  .btn-link { background: none; border: 0; color: var(--accent-text); font-size: 14px; font-weight: 700; min-height: 44px; padding: 0 4px; }
+  .map-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px 14px; }
+  .map-list:empty { display: none; }
+  .map-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .map-row .dot { width: 12px; height: 12px; flex: none; border-radius: 50%; border: 2px solid #fff; }
+  .map-row .who { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .map-row .age { flex: none; color: var(--dim); font-size: 12px; }
+  .share-box { padding: 16px 18px 18px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+  .share-state { font-size: 14px; color: var(--dim); }
+  .share-state.on { color: var(--green); font-weight: 600; }
+  #shareError { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; text-align: left; }
+
   /* ---------- dialogs ---------- */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(3, 8, 22, 0.8); z-index: 20; align-items: center; justify-content: center; padding: 16px; }
   .modal-overlay.show { display: flex; }
@@ -415,6 +451,24 @@
     <div class="stop stop-last"><div class="stop-rail"><div class="stop-dot"></div></div><div class="stop-body"><div><div class="stop-name">Moșia Zeletin</div><div class="stop-sub">Destinația finală</div></div><span class="stop-tag">Final</span></div></div>
   </div>
 
+  <div class="section-head"><h2>Harta live</h2><span class="aside" id="mapAside">doar participanți</span></div>
+  <div class="card map-card" id="liveMapCard">
+    <div id="mapLocked" class="map-locked">
+      <div class="dialog-icon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <p>Harta cu locațiile participanților este vizibilă doar celor înscriși. Înscrie-te sau recuperează-ți înscrierea, ori introdu codul de acces.</p>
+      <button type="button" class="btn-secondary btn-ghost" id="mapUnlockBtn">Introdu codul</button>
+    </div>
+    <div id="mapWrap" hidden>
+      <div id="liveMap" role="application" aria-label="Harta cu locațiile participanților"></div>
+      <div class="map-toolbar"><span id="mapCount">Nimeni nu își distribuie locația încă.</span><span class="map-buttons"><button type="button" class="btn-link" id="mapFitBtn">Pe participanți</button><button type="button" class="btn-link" id="mapRouteBtn">Tot traseul</button></span></div>
+      <div id="mapList" class="map-list"></div>
+    </div>
+    <div class="share-box">
+      <div class="share-state" id="shareState">Locația ta nu este distribuită.</div>
+      <button type="button" class="btn-primary" id="shareBtn" hidden>Distribuie locația mea</button>
+    </div>
+  </div>
+
   <div class="actions-top">
     <button type="button" class="btn-primary btn-wide" id="tripInfoBtn">
       Detalii complete despre traseu
@@ -524,6 +578,24 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="shareOverlay">
+  <div class="modal-box dialog" role="dialog" aria-labelledby="shareTitle">
+    <button type="button" class="modal-close" id="shareClose" aria-label="Închide">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="dialog-icon" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+    </div>
+    <h2 id="shareTitle">Distribuie locația</h2>
+    <p>Locația ta live va fi vizibilă doar participanților înscriși, până apeși „Oprește” sau după 12 ore. Se actualizează cât timp pagina rămâne deschisă, deci ține ecranul aprins. Nu folosi telefonul în timp ce conduci: lasă un pasager să o pornească.</p>
+    <div class="dialog-actions">
+      <button type="button" class="btn-primary" id="shareConfirm">Pornește distribuirea</button>
+      <button type="button" class="btn-secondary btn-ghost" id="shareCancel">Anulează</button>
+    </div>
+    <div id="shareError"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="tripInfoOverlay">
   <div class="modal-box" role="dialog" aria-label="Detalii complete despre traseu">
     <button type="button" class="modal-close" id="tripInfoClose" aria-label="Închide">
@@ -533,6 +605,7 @@
   </div>
 </div>
 
+<script src="vendor/leaflet/leaflet.js"></script>
 <script>
   // The access code lives on the server (ACCESS_CODE env var), never in this file.
   let accessCode = null;
@@ -545,7 +618,11 @@
     });
     let data = null;
     try { data = await res.json(); } catch (e) { /* empty body */ }
-    if (!res.ok) throw new Error((data && data.error) || `HTTP ${res.status}`);
+    if (!res.ok) {
+      const err = new Error((data && data.error) || `HTTP ${res.status}`);
+      err.status = res.status;
+      throw err;
+    }
     return data;
   }
 
@@ -579,6 +656,7 @@
     showPhones = true;
     showPhonesBtn.style.display = 'none';
     fetchCrew();
+    refreshMap();
   }
 
   showPhonesBtn.addEventListener('click', () => openLogin());
@@ -978,6 +1056,8 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     document.querySelectorAll('.rooms-total').forEach(el => { el.textContent = totalRooms; });
     document.getElementById('roomsBar').style.width = Math.min(100, (rooms.length / totalRooms) * 100) + '%';
     applyRoomAvailability();
+    updateShareUI();
+    if (mapAuthorized() !== lastMapAuth) refreshMap();
 
     if (crew.length === 0) {
       listEl.innerHTML = '<div class="empty">Nimeni adăugat încă.</div>';
@@ -1202,6 +1282,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
       rememberOwner(found.id, found.owner_token);
       closeRecover();
       await fetchCrew();
+      refreshMap();
       showStatus('✅ Gata! Poți edita înscrierea ta de pe acest dispozitiv.', 'info');
       setTimeout(hideStatus, 6000);
     } catch (err) {
@@ -1243,6 +1324,257 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
     welcomeOverlay.classList.add('show');
   }
 
+  // ---------- live map ----------
+  // Stops from the trip's Google Maps route.
+  const STOPS = [
+    { name: 'Start · A3', lat: 44.5558226, lng: 26.1828524 },
+    { name: 'Sărata Monteoru', lat: 45.1550513, lng: 26.5845185 },
+    { name: 'Barajul Siriu', lat: 45.4915678, lng: 26.2528663 },
+    { name: 'Brașov', lat: 45.6733974, lng: 25.6448114 },
+    { name: 'Moșia Zeletin', lat: 45.2877349, lng: 26.1310972, finish: true }
+  ];
+  const MAP_POLL_MS = 10000;
+  const SHARE_MAX_MS = 12 * 60 * 60 * 1000;
+  const SHARE_SEND_MS = 10000;
+
+  const mapLocked = document.getElementById('mapLocked');
+  const mapWrap = document.getElementById('mapWrap');
+  const mapAside = document.getElementById('mapAside');
+  const mapCount = document.getElementById('mapCount');
+  const mapList = document.getElementById('mapList');
+  const shareBtn = document.getElementById('shareBtn');
+  const shareState = document.getElementById('shareState');
+  const shareOverlay = document.getElementById('shareOverlay');
+  const shareError = document.getElementById('shareError');
+
+  let liveMap = null;
+  let mapFitted = false;
+  let lastMapAuth = null;
+  let lastLocations = [];
+  const pins = new Map();
+
+  function mapAuthorized() {
+    return Object.keys(getOwnerTokens()).length > 0 || !!accessCode;
+  }
+
+  function ensureMap() {
+    if (liveMap || typeof L === 'undefined') return;
+    liveMap = L.map('liveMap', { zoomControl: true, scrollWheelZoom: false, dragging: !L.Browser.mobile }).setView([45.2, 26.0], 8);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+    }).addTo(liveMap);
+    STOPS.forEach(stop => {
+      L.marker([stop.lat, stop.lng], {
+        icon: L.divIcon({
+          className: 'stop-pin' + (stop.finish ? ' finish' : ''),
+          html: `<span class="stop-pin-dot"></span><span class="stop-pin-label">${escapeHtml(stop.name)}</span>`,
+          iconSize: [0, 0]
+        }),
+        interactive: false, keyboard: false
+      }).addTo(liveMap);
+    });
+    fitMap(true);
+  }
+
+  function fitMap(wholeRoute) {
+    if (!liveMap) return;
+    const cars = lastLocations.map(l => [l.lat, l.lng]);
+    const route = STOPS.map(s => [s.lat, s.lng]);
+    const points = wholeRoute === true || cars.length === 0 ? route.concat(cars) : cars;
+    // No animation: Leaflet ignores a fit that arrives while an earlier zoom animation is still running.
+    liveMap.fitBounds(points, { padding: [40, 40], maxZoom: 13, animate: false });
+  }
+
+  function formatAge(seconds) {
+    if (seconds < 15) return 'acum';
+    if (seconds < 90) return `acum ${Math.round(seconds)} s`;
+    return `acum ${Math.round(seconds / 60)} min`;
+  }
+
+  function drawLocations(locations) {
+    lastLocations = locations;
+    const seen = new Set();
+    locations.forEach(l => {
+      seen.add(l.id);
+      const tone = carTone(l.car)[0];
+      const icon = L.divIcon({
+        className: 'car-pin' + (l.mine ? ' mine' : ''),
+        html: `<span class="car-pin-dot" style="background:${tone}"></span><span class="car-pin-label">${escapeHtml(l.name)}</span>`,
+        iconSize: [0, 0]
+      });
+      let pin = pins.get(l.id);
+      if (pin) { pin.setLatLng([l.lat, l.lng]); pin.setIcon(icon); }
+      else { pin = L.marker([l.lat, l.lng], { icon, keyboard: false, title: l.name, zIndexOffset: 1000 }).addTo(liveMap); pins.set(l.id, pin); }
+    });
+    for (const [id, pin] of pins) {
+      if (!seen.has(id)) { liveMap.removeLayer(pin); pins.delete(id); }
+    }
+    mapCount.textContent = locations.length === 0
+      ? 'Nimeni nu își distribuie locația încă.'
+      : (locations.length === 1 ? '1 participant își distribuie locația' : `${locations.length} participanți își distribuie locația`);
+    mapList.innerHTML = locations.map(l => `
+      <div class="map-row">
+        <span class="dot" style="background:${carTone(l.car)[0]}"></span>
+        <span class="who">${escapeHtml(l.name)}${l.plate ? ' · ' + escapeHtml(l.plate) : ''}${l.mine ? ' (tu)' : ''}</span>
+        <span class="age">${formatAge(l.age)}</span>
+      </div>`).join('');
+    if (!mapFitted && locations.length > 0) { mapFitted = true; fitMap(false); }
+  }
+
+  async function refreshMap() {
+    const ok = mapAuthorized();
+    lastMapAuth = ok;
+    mapLocked.hidden = ok;
+    mapWrap.hidden = !ok;
+    mapAside.textContent = ok ? 'live' : 'doar participanți';
+    if (!ok) return;
+    ensureMap();
+    if (!liveMap) { mapCount.textContent = 'Harta nu s-a putut încărca.'; return; }
+    liveMap.invalidateSize();
+    try {
+      const data = await api('/api/location', { headers: authHeaders() });
+      drawLocations(data.locations || []);
+    } catch (err) {
+      if (err.status === 403) {   // stale token (entry deleted) or wrong code: back to the locked view
+        lastMapAuth = false;
+        mapLocked.hidden = false;
+        mapWrap.hidden = true;
+      }
+    }
+  }
+
+  document.getElementById('mapFitBtn').addEventListener('click', () => fitMap(false));
+  document.getElementById('mapRouteBtn').addEventListener('click', () => fitMap(true));
+  document.getElementById('mapUnlockBtn').addEventListener('click', () => openLogin(
+    'Vezi harta live',
+    'Introdu codul primit în grup ca să vezi locațiile participanților.',
+    refreshMap
+  ));
+  setInterval(() => { if (document.visibilityState === 'visible' && mapAuthorized()) refreshMap(); }, MAP_POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshMap(); });
+
+  // ---------- sharing my own location ----------
+  let watchId = null;
+  let sendTimer = null;
+  let latestPos = null;
+  let sharingEntryId = null;
+  let sharingSince = 0;
+  let lastSentAt = 0;
+  let wakeLock = null;
+
+  function myEntryId() {
+    const mine = crew.find(p => p.mine);
+    return mine ? mine.id : null;
+  }
+
+  function updateShareUI() {
+    const sharing = watchId !== null;
+    const id = myEntryId();
+    shareBtn.hidden = !sharing && !id;
+    shareBtn.textContent = sharing ? 'Oprește distribuirea' : 'Distribuie locația mea';
+    shareBtn.className = sharing ? 'btn-secondary btn-ghost' : 'btn-primary';
+    shareState.classList.toggle('on', sharing);
+    if (sharing) shareState.textContent = lastSentAt ? 'Îți distribui locația · actualizat ' + formatAge((Date.now() - lastSentAt) / 1000) : 'Se caută locația ta…';
+    else shareState.textContent = id ? 'Locația ta nu este distribuită.' : 'Înscrie-te sau recuperează-ți înscrierea ca să îți poți distribui locația.';
+  }
+
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      }
+    } catch (e) { /* not available: sharing still works while the screen is on */ }
+  }
+
+  async function sendPosition() {
+    if (!latestPos || !sharingEntryId) return;
+    const c = latestPos.coords;
+    try {
+      await api(`/api/location?id=${encodeURIComponent(sharingEntryId)}`, {
+        method: 'POST',
+        headers: { 'x-owner-token': getOwnerTokens()[sharingEntryId] || '' },
+        body: {
+          lat: c.latitude, lng: c.longitude, accuracy: c.accuracy,
+          heading: Number.isFinite(c.heading) ? c.heading : null,
+          speed: Number.isFinite(c.speed) ? c.speed : null
+        }
+      });
+      lastSentAt = Date.now();
+      updateShareUI();
+      refreshMap();
+    } catch (err) {
+      if (err.status === 403 || err.status === 404) stopSharing('Distribuirea s-a oprit: înscrierea nu mai este validă.');
+    }
+  }
+
+  function onPosition(pos) {
+    if (Date.now() - sharingSince > SHARE_MAX_MS) { stopSharing('Distribuirea s-a oprit după 12 ore.'); return; }
+    const first = latestPos === null;
+    latestPos = pos;
+    if (first) sendPosition();
+  }
+
+  function onPositionError(err) {
+    if (err.code === 1) stopSharing('Nu ai permis accesul la locație. Activează-l din setările browserului ca să o poți distribui.', 'error');
+  }
+
+  function startSharing() {
+    if (!('geolocation' in navigator)) { showShareError('Browserul tău nu poate folosi locația.'); return; }
+    sharingEntryId = myEntryId();
+    if (!sharingEntryId) { showShareError('Nu am găsit înscrierea ta pe acest dispozitiv.'); return; }
+    sharingSince = Date.now();
+    latestPos = null;
+    lastSentAt = 0;
+    watchId = navigator.geolocation.watchPosition(onPosition, onPositionError, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+    sendTimer = setInterval(() => { sendPosition(); updateShareUI(); }, SHARE_SEND_MS);
+    requestWakeLock();
+    closeShareDialog();
+    updateShareUI();
+  }
+
+  async function stopSharing(message, type) {
+    const id = sharingEntryId;
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    clearInterval(sendTimer);
+    watchId = null; sendTimer = null; latestPos = null; sharingEntryId = null;
+    if (wakeLock) { try { wakeLock.release(); } catch (e) { /* already released */ } wakeLock = null; }
+    updateShareUI();
+    if (message) { showStatus(message, type || 'info'); setTimeout(hideStatus, 8000); }
+    if (id) {
+      try {
+        await api(`/api/location?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'x-owner-token': getOwnerTokens()[id] || '' } });
+      } catch (e) { /* the position expires on its own after a few minutes */ }
+      refreshMap();
+    }
+  }
+
+  function showShareError(message) {
+    shareError.textContent = message;
+    shareError.style.display = 'block';
+  }
+
+  function openShareDialog() {
+    shareError.style.display = 'none';
+    shareOverlay.classList.add('show');
+    document.getElementById('shareConfirm').focus();
+  }
+
+  function closeShareDialog() {
+    shareOverlay.classList.remove('show');
+  }
+
+  shareBtn.addEventListener('click', () => { if (watchId !== null) stopSharing(); else openShareDialog(); });
+  document.getElementById('shareConfirm').addEventListener('click', startSharing);
+  document.getElementById('shareCancel').addEventListener('click', closeShareDialog);
+  document.getElementById('shareClose').addEventListener('click', closeShareDialog);
+  shareOverlay.addEventListener('click', (e) => { if (e.target === shareOverlay) closeShareDialog(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && shareOverlay.classList.contains('show')) closeShareDialog(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && watchId !== null && !wakeLock) requestWakeLock();
+  });
+
   function updateCountdown() {
     const tripDate = new Date(2026, 11, 5);
     const today = new Date();
@@ -1283,6 +1615,7 @@ Ne vedem cu rezervoarele pline, mașinile curate și motoarele pregătite pentru
 
   updateCountdown();
   maybeShowWelcome();
+  refreshMap();
   updateSubmitState();
   applyRoomAvailability();
 

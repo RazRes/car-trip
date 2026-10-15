@@ -6,10 +6,11 @@ import { makeHandlers } from '../lib/app.js';
 
 const env = { ACCESS_CODE: 'secret1', ROOMS_TOTAL: '2' };
 let handlers;
+let db;
 let emailCounter = 0;
 
 before(async () => {
-  const db = new PGlite();
+  db = new PGlite();
   const schema = await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8');
   await db.exec(schema);
   handlers = makeHandlers(async (text, params) => (await db.query(text, params)).rows, env);
@@ -169,4 +170,77 @@ test('recover: unknown or invalid email is rejected', async () => {
   assert.equal((await recover({ email: 'not-an-email' })).status, 400);
   assert.equal((await recover({})).status, 400);
   assert.equal((await call(handlers.recover, 'GET', '/api/recover')).status, 405);
+});
+
+const locate = (method, id, { headers = {}, body } = {}) =>
+  call(handlers.location, method, id ? `/api/location?id=${id}` : '/api/location', { headers, body });
+const ownerHdr = (e) => ({ 'x-owner-token': e.json.owner_token });
+const tokensHdr = (...es) => ({ 'x-owner-tokens': JSON.stringify(Object.fromEntries(es.map(e => [e.json.id, e.json.owner_token]))) });
+
+test('location: only registered participants (or the code) can see the map', async () => {
+  const a = await create(person({ name: 'Sharer' }));
+  const b = await create(person({ name: 'Viewer' }));
+  assert.equal((await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: 45.2, lng: 26.1 } })).status, 200);
+
+  assert.equal((await locate('GET', null, {})).status, 403, 'anonymous');
+  assert.equal((await locate('GET', null, { headers: { 'x-owner-tokens': JSON.stringify({ [b.json.id]: 'wrong' }) } })).status, 403, 'bad token');
+  assert.equal((await locate('GET', null, { headers: { 'x-access-code': 'nope' } })).status, 403, 'bad code');
+
+  const viaEntry = await locate('GET', null, { headers: tokensHdr(b) });
+  assert.equal(viaEntry.status, 200);
+  const row = viaEntry.json.locations.find(l => l.id === a.json.id);
+  assert.equal(row.name, 'Sharer');
+  assert.equal(row.mine, false);
+  assert.equal('owner_token' in row, false);
+
+  assert.equal((await locate('GET', null, { headers: { 'x-access-code': 'secret1' } })).status, 200, 'access code');
+  const mine = (await locate('GET', null, { headers: tokensHdr(a) })).json.locations.find(l => l.id === a.json.id);
+  assert.equal(mine.mine, true);
+});
+
+test('location: only the owner can publish or remove a position; input is validated', async () => {
+  const a = await create(person({ name: 'Owner' }));
+  const other = await create(person({ name: 'Other' }));
+  const body = { lat: 45.5, lng: 25.6, accuracy: 12, heading: 90, speed: 20 };
+
+  assert.equal((await locate('POST', a.json.id, { body })).status, 403, 'no token');
+  assert.equal((await locate('POST', a.json.id, { headers: ownerHdr(other), body })).status, 403, "someone else's token");
+  assert.equal((await locate('POST', 'not-a-uuid', { headers: ownerHdr(a), body })).status, 404);
+  assert.equal((await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: 91, lng: 0 } })).status, 400);
+  assert.equal((await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: '45', lng: 26 } })).status, 400);
+  assert.equal((await locate('POST', a.json.id, { headers: ownerHdr(a), body })).status, 200);
+
+  assert.equal((await locate('DELETE', a.json.id, { headers: ownerHdr(other) })).status, 403);
+  assert.equal((await locate('DELETE', a.json.id, { headers: ownerHdr(a) })).status, 200);
+  const after = (await locate('GET', null, { headers: { 'x-access-code': 'secret1' } })).json.locations;
+  assert.equal(after.some(l => l.id === a.json.id), false, 'stopped sharing means gone');
+});
+
+test('location: updates are rate limited, stale positions are hidden, deleting an entry removes its position', async () => {
+  const a = await create(person({ name: 'Mover' }));
+  const code = { 'x-access-code': 'secret1' };
+  await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: 45.0, lng: 26.0 } });
+  await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: 46.0, lng: 27.0 } });   // immediately after: ignored
+  let row = (await locate('GET', null, { headers: code })).json.locations.find(l => l.id === a.json.id);
+  assert.equal(row.lat, 45.0);
+
+  await db.query(`update locations set updated_at = now() - interval '6 seconds' where entry_id = $1::uuid`, [a.json.id]);
+  await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: 46.0, lng: 27.0 } });
+  row = (await locate('GET', null, { headers: code })).json.locations.find(l => l.id === a.json.id);
+  assert.equal(row.lat, 46.0, 'after the cooldown the new position is stored');
+
+  await db.query(`update locations set updated_at = now() - interval '11 minutes' where entry_id = $1::uuid`, [a.json.id]);
+  assert.equal((await locate('GET', null, { headers: code })).json.locations.some(l => l.id === a.json.id), false, 'stale hidden');
+
+  await locate('POST', a.json.id, { headers: ownerHdr(a), body: { lat: 45.0, lng: 26.0 } });   // refresh (row exists, old)
+  await db.query(`update locations set updated_at = now() - interval '25 hours' where entry_id = $1::uuid`, [a.json.id]);
+  const b = await create(person({ name: 'Trigger' }));
+  await locate('POST', b.json.id, { headers: ownerHdr(b), body: { lat: 45.1, lng: 26.1 } });   // any write cleans up old rows
+  const left = await db.query(`select count(*)::int as n from locations where entry_id = $1::uuid`, [a.json.id]);
+  assert.equal(left.rows[0].n, 0, 'rows older than a day are deleted');
+
+  await locate('POST', b.json.id, { headers: ownerHdr(b), body: { lat: 45.1, lng: 26.1 } });
+  await call(handlers.crew, 'DELETE', `/api/crew?id=${b.json.id}`, { headers: { 'x-owner-token': b.json.owner_token } });
+  const gone = await db.query(`select count(*)::int as n from locations where entry_id = $1::uuid`, [b.json.id]);
+  assert.equal(gone.rows[0].n, 0, 'cascade on delete');
 });
