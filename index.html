@@ -145,6 +145,7 @@
   .organizer-link { display: block; margin: 6px auto 0; padding: 10px 14px; background: none; border: 0; color: var(--dim); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
 
   /* ---------- calendar button ---------- */
+  .actions-top.trip-info-top { margin-top: 14px; }
   .cal-btn { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 20px 0; min-height: 50px; border: 1px solid var(--line2); border-radius: 14px; background: transparent; color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; }
   .cal-btn:hover { border-color: var(--accent-text); }
 
@@ -466,6 +467,12 @@
     <div class="fact"><span class="label">Plecare</span><span class="value accent">10:00</span></div>
     <div class="fact"><span class="label">Camere</span><span class="value"><span class="rooms-total">14</span></span></div>
   </div>
+  <div class="actions-top trip-info-top">
+    <button type="button" class="btn-primary btn-wide" id="tripInfoBtn">
+      Detalii complete despre traseu
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
   <a class="cal-btn" href="grand-finale-2026.ics" download="grand-finale-2026.ics">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
     Adaugă în calendar
@@ -543,10 +550,6 @@
   </div>
 
   <div class="actions-top">
-    <button type="button" class="btn-primary btn-wide" id="tripInfoBtn">
-      Detalii complete despre traseu
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
     <div class="btn-row">
       <button type="button" class="btn-secondary" id="showPhonesBtn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
